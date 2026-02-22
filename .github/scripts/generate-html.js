@@ -1,5 +1,14 @@
 // generate-html.js
 
+// Purpose: Generate an index.html page for GitHub Pages with links to all test report runs.
+// This script generates an index.html file for the GitHub Pages dashboard:
+
+// Reads a template HTML file (report-design.html).
+// Scans the gh-pages directory for report folders.
+// Formats each folder name as a readable date.
+// Builds a list of links to each report, highlighting the latest run.
+// Inserts the list into the template and writes the final HTML to gh-pages/index.html.
+
 const fs = require("fs");
 const path = require("path");
 
@@ -7,7 +16,7 @@ const path = require("path");
 const REPORT_DIR = process.env.REPORT_DIR;
 
 const pagesPath = path.join(__dirname, "..", "gh-pages"); // when using gh-pages branch
-const templatePath = path.join(__dirname, "..", "resources", "report-design.html");
+const templatePath = path.join(__dirname, "report-design.html");
 const outputPath = path.join(pagesPath, "index.html");
 
 const template = fs.readFileSync(templatePath, "utf-8");

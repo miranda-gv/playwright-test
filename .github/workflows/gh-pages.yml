@@ -129,7 +129,7 @@ jobs:
       - name: 📑 Generate index page
         env:
           REPORT_DIR: ${{ needs.tests.outputs.report_dir }}
-        run: node ./resources/generate-html.js
+        run: node .github/scripts/generate-html.js
 
       - name: 🚀 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
