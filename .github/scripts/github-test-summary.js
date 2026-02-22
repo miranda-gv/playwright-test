@@ -1,3 +1,12 @@
+
+// This script reads Playwright test results from test-reports/playwright-report.json, 
+// calculates summary statistics (passed, failed, skipped tests, and total duration), 
+// and generates an HTML table with these results. It then appends this summary to the 
+// GitHub Actions workflow summary using the GITHUB_STEP_SUMMARY environment variable.
+
+// Note: Ensure that the path to the JSON report and the structure of the report 
+// match what this script expects.
+
 const fs = require('fs');
 const results = JSON.parse(fs.readFileSync('test-reports/playwright-report.json', 'utf-8'));
 

@@ -1,3 +1,12 @@
+
+# This workflow is designed to clean up the GitHub Pages content by deleting
+# all files in the `gh-pages` branch except for the `.git` directory. 
+# It can be triggered manually via the "Run workflow" button in the GitHub Actions tab.
+# The workflow checks out the `gh-pages` branch, removes all files, commits the changes, 
+# and pushes them back to the repository. 
+# Make sure to set up a Personal Access Token (PAT) with appropriate permissions and 
+# add it as a secret named `GH_PAT` in your repository settings before using this workflow.
+
 name: Cleanup GitHub Pages
 
 on:

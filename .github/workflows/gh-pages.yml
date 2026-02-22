@@ -1,19 +1,26 @@
-# Using gh-pages peaceiris for deployment to pages - FULL HTML
-# Using Multiple workflow jobs
-# main workflow
 
-name: 🎭 Playwright Tests
+# gh-pages.yml
+
+# Purpose: Main workflow for running Playwright tests and deploying HTML reports to GitHub Pages.
+# Features:
+# Runs tests, generates reports, uploads as artifact.
+# Deploys reports to gh-pages branch using peaceiris/actions-gh-pages.
+# Generates an index page and adds report URLs to the workflow summary.
+
+name: 🎭 Playwright Tests Dashboard
 
 on:
   # push:
-  #   branches: [main, master]
+  #   branches: [main]
   # pull_request:
-  #   branches: [main, master]
+  #   branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
-  
+  id-token: write  # Required by actions/deploy-pages@v4
+  pages: write      # Required to deploy to GitHub Pages
+  actions: read
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -54,7 +61,7 @@ jobs:
         run: npm ci
 
       - name: 🌐 Install Playwright
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: 🧪 Run Playwright Tests
         run: npx playwright test --project=chromium -g "test-1.spec.ts"
@@ -68,7 +75,7 @@ jobs:
           
       - name: 🎭 Add Test Summary HTML Table
         if: always()
-        run: node ./github-test-summary.js
+        run: node .github/scripts/github-test-summary.js
 
       - name: 📁 Set Report Folder Name
         id: report-dir
