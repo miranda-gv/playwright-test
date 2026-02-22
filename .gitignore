@@ -3,8 +3,8 @@
 node_modules/
 /test-results/
 /test-reports/
-/playwright-report/
-/blob-report/
 /playwright/.cache/
 .DS_Store
-/ctrf/
+
+# Ignore the gh-pages branch where the dashboard is generated
+/gh-pages/
