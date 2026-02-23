@@ -67,6 +67,9 @@ jobs:
         run: npx playwright test --project=chromium -g "test-1.spec.ts"
         continue-on-error: true
 
+      - name: 📂 List test-reports directory
+        run: ls -R test-reports
+
       - name: 🖥️ 📑 Install and Publish CTRF Test Summary Results
         run: |
           npm install -g github-actions-ctrf
@@ -116,6 +119,9 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
+      - name: 🔍 List gh-pages after checkout
+        run: ls -R gh-pages
+
       - name: 📂 Create gh-pages directory if needed
         run: mkdir -p gh-pages
 
@@ -125,6 +131,9 @@ jobs:
           name: report-folder
           path: gh-pages
         continue-on-error: true
+
+      - name: 🔍 List gh-pages after download
+        run: ls -R gh-pages
 
       - name: 📑 Generate index page
         env:
