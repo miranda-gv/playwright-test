@@ -7,8 +7,6 @@
 # Make sure to set up a Personal Access Token (PAT) with appropriate permissions and 
 # add it as a secret named `GH_PAT` in your repository settings before using this workflow.
 
-
-
 name: 🗑️ Cleanup GitHub Pages Content
 
 on:
