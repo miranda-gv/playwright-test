@@ -140,6 +140,9 @@ jobs:
           REPORT_DIR: ${{ needs.tests.outputs.report_dir }}
         run: node .github/scripts/generate-html.js
 
+      - name: 🔍 List gh-pages after index generation
+        run: ls -R gh-pages
+
       - name: 🚀 Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
