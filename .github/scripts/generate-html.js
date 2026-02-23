@@ -74,13 +74,13 @@ let reportItems = "";
 
 // Latest run
 const now = formatDate(new Date());
-reportItems += `<li class="latest"><a href="./${REPORT_DIR}/index.html">Run: ${REPORT_DIR} <span class="date">Generated on ${now}</span></a></li>`;
+reportItems += `<li class="latest"><a href="./${REPORT_DIR}/monocart/index.html">Run: ${REPORT_DIR} <span class="date">Generated on ${now}</span></a></li>`;
 
 // Older runs
 for (const dir of allDirs) {
   if (dir !== REPORT_DIR) {
     const formattedDate = formatDirectoryDate(dir);
-    reportItems += `<li><a href="./${dir}/index.html">Run: ${dir} <span class="date">Generated on ${formattedDate}</span></a></li>`;
+    reportItems += `<li><a href="./${dir}/monocart/index.html">Run: ${dir} <span class="date">Generated on ${formattedDate}</span></a></li>`;
   }
 }
 
