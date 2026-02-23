@@ -7,4 +7,4 @@ node_modules/
 .DS_Store
 
 # Ignore the gh-pages branch where the dashboard is generated
-/gh-pages/
+/site/

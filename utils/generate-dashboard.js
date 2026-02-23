@@ -11,8 +11,8 @@ const cheerio = require('cheerio');
 
 // CONFIGURATION
 const GHPAGES_URL = "https://github.com/miranda-gv/playwright-test/tree/gh-pages";
-const GHPAGES_DIR = path.join(__dirname, "gh-pages");
-const TEMPLATE_PATH = path.join(__dirname, ".github/scripts", "report-design.html");
+const GHPAGES_DIR = path.join(__dirname, "../site");
+const TEMPLATE_PATH = path.join(__dirname, "../.github/scripts", "report-design.html");
 const OUTPUT_PATH = path.join(GHPAGES_DIR, "index.html");
 
 function fetchReportFolders(callback) {
