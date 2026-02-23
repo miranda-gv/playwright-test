@@ -1,170 +1,33 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable no-undef */
-
-// Node.js script for fetching artifacts and generating dashboard
+// Modularized process-artifacts.js
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
-const { execSync } = require('child_process');
-
-// --- Configuration ---
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY; // Format: "owner/repo"
-const ARTIFACT_NAME = 'report-folder';
-const SIZE_LIMIT_MB = 50;
-const SIZE_LIMIT_BYTES = SIZE_LIMIT_MB * 1024 * 1024; // 50MB in bytes
-const DAYS_TO_KEEP = 30; // Keep artifacts from last 30 days for all branches
-const SPECIAL_BRANCHES = ['main', 'test', 'dev'];
-const MAX_CONCURRENT_DOWNLOADS = 8; // Limit concurrent downloads to avoid overwhelming the API
-const MAX_CONCURRENT_EXTRACTIONS = 4; // Limit concurrent extractions to avoid I/O bottleneck
-
-if (!GITHUB_TOKEN || !GITHUB_REPOSITORY) {
-  console.error('Error: GITHUB_TOKEN and GITHUB_REPOSITORY environment variables are required.');
-  process.exit(1);
-}
-
-// --- Helper Functions ---
-
-function execCommand(command, options = {}) {
-  try {
-    return execSync(command, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, ...options });
-  } catch (error) {
-    console.error(`Command failed: ${command}`);
-    console.error(error.message);
-    throw error;
-  }
-}
-
-async function fetchFromGitHubAPI(endpoint) {
-  console.log(`Fetching from GitHub API: ${endpoint}`);
-
-  // Use jq to properly handle paginated responses from gh api
-  const command = `gh api --paginate "${endpoint}" | jq -s '.'`;
-  const result = execCommand(command);
-
-  try {
-    const parsed = JSON.parse(result);
-    // jq -s creates an array of all JSON objects, so we return the parsed result
-    return parsed;
-  } catch (error) {
-    console.error(`Failed to parse JSON response for ${endpoint}:`, error.message);
-    console.error(`Raw response (first 500 chars): ${result.substring(0, 500)}`);
-    throw error;
-  }
-}
-
-async function getActiveBranches() {
-  console.log('Fetching active branches...');
-  const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/branches`);
-
-  let allBranches = [];
-
-  if (Array.isArray(response)) {
-    // With jq -s, we get an array of response pages
-    for (const pageResponse of response) {
-      if (Array.isArray(pageResponse)) {
-        // Direct array of branches
-        allBranches.push(...pageResponse);
-      }
-    }
-  } else {
-    // Single response object, not paginated
-    if (Array.isArray(response)) {
-      allBranches = response;
-    }
-  }
-
-  const branchNames = allBranches.map((b) => b.name).filter((name) => name);
-  return new Set(branchNames);
-}
-
-async function getAllArtifacts() {
-  console.log('Fetching all artifacts...');
-  const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/actions/artifacts`);
-
-  // Handle both paginated and single-page responses
-  let allArtifacts = [];
-
-  if (Array.isArray(response)) {
-    // Multiple pages - each item should be a response object
-    for (const pageResponse of response) {
-      if (pageResponse.artifacts && Array.isArray(pageResponse.artifacts)) {
-        allArtifacts.push(...pageResponse.artifacts);
-      }
-    }
-  } else if (response.artifacts && Array.isArray(response.artifacts)) {
-    // Single page response
-    allArtifacts = response.artifacts;
-  }
-
-  console.log(`Found ${allArtifacts.length} total artifacts.`);
-  return allArtifacts;
-}
-
-function formatDateInEST(date) {
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true,
-    timeZone: 'America/New_York',
-  };
-  return new Date(date).toLocaleString('en-US', options) + ' EST';
-}
-
-function extractRunNumber(url) {
-  if (!url) return 'Unknown';
-  const match = url.match(/\/runs\/(\d+)/);
-  return match ? match[1] : 'Unknown';
-}
-
-async function downloadArtifact(artifact, branchName, timestampDir) {
-  return new Promise((resolve, reject) => {
-    const zipPath = path.join(timestampDir, 'artifact.zip');
-    const tokenFilePath = path.join(
-      os.tmpdir(),
-      `token-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    );
-
-    try {
-      fs.writeFileSync(tokenFilePath, `Authorization: token ${GITHUB_TOKEN}`, { mode: 0o600 });
-      console.log(`Downloading artifact ${artifact.id} for branch ${branchName}...`);
-
-      // Optimized curl command for faster downloads
-      execCommand(
-        `curl -L -H @${tokenFilePath} -o "${zipPath}" "${artifact.archive_download_url}" --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 1 --compressed`,
-      );
-
-      if (!fs.existsSync(zipPath) || fs.statSync(zipPath).size === 0) {
-        throw new Error('Downloaded file is empty or does not exist.');
-      }
-
-      resolve({ artifact, branchName, timestampDir, zipPath });
-    } catch (error) {
-      reject({ artifact, branchName, error });
-    } finally {
-      if (fs.existsSync(tokenFilePath)) {
-        fs.unlinkSync(tokenFilePath);
-      }
-    }
-  });
-}
-
-// Helper function to process items in batches with concurrency control
-async function processConcurrently(items, processor, maxConcurrent) {
-  const results = [];
-  for (let i = 0; i < items.length; i += maxConcurrent) {
-    const batch = items.slice(i, i + maxConcurrent);
-    const batchResults = await Promise.allSettled(batch.map(processor));
-    results.push(...batchResults);
-  }
-  return results;
-}
-
-// --- Main Processing Logic ---
+const {
+  GITHUB_TOKEN,
+  GITHUB_REPOSITORY,
+  ARTIFACT_NAME,
+  SIZE_LIMIT_MB,
+  SIZE_LIMIT_BYTES,
+  DAYS_TO_KEEP,
+  SPECIAL_BRANCHES,
+  MAX_CONCURRENT_DOWNLOADS,
+  MAX_CONCURRENT_EXTRACTIONS,
+} = require('./config');
+const {
+  execCommand,
+  fetchFromGitHubAPI,
+  getActiveBranches,
+  getAllArtifacts,
+} = require('./github-api');
+const {
+  formatDateInEST,
+  extractRunNumber,
+  downloadArtifact,
+  processConcurrently,
+} = require('./artifact-utils');
+const {
+  writePlaceholderHtml,
+  writeTimestampIndexHtml,
+} = require('./dashboard-generator');
 
 async function main() {
   const startTime = Date.now();
@@ -297,34 +160,7 @@ async function main() {
         console.log(
           `  - Creating placeholder for large artifact ${artifact.id} in branch ${branchName}`,
         );
-
-        const placeholderHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-            <link rel="stylesheet" href="../../scripts/styles.css">
-          </head>
-          <body>
-            <div class="container">
-              <div class="back-link">
-                <a href="../../index.html">← Back to Dashboard</a>
-              </div>
-              <h1>Artifact Too Large</h1>
-              <h2>Branch: ${branchName}</h2>
-              <h3>Run: #${runNumber} (${formattedDate})</h3>
-              <p>The artifact for this run was larger than ${SIZE_LIMIT_MB}MB and is not available for viewing in this dashboard.</p>
-              <p>You can download it directly from the GitHub Actions workflow run page.</p>
-              <div style="text-align: center; margin: 1.5rem 0;">
-                <a href="${workflowUrl}" target="_blank" class="workflow-link">View Workflow Run on GitHub</a>
-              </div>
-            </div>
-          </body>
-          </html>
-        `;
-        fs.writeFileSync(path.join(timestampDir, 'index.html'), placeholderHtml);
+        writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, timestampDir });
       } else {
         const key = `${branchName}-${timestamp}-${artifact.id}`;
         artifactMetadata.set(key, {
@@ -401,42 +237,7 @@ async function main() {
 
       // Create index.html if it doesn't exist
       if (!fs.existsSync(path.join(timestampDir, 'index.html'))) {
-        const timestampIndexHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${branchName} - ${timestamp} - Test Results</title>
-            <link rel="stylesheet" href="../../scripts/styles.css">
-          </head>
-          <body>
-            <div class="container">
-              <div class="back-link">
-                <a href="../../index.html">← Back to Dashboard</a>
-              </div>
-              <h1>${branchName}</h1>
-              <h2>#${metadata.runNumber} (${metadata.formattedDate})</h2>
-              <div style="text-align: center; margin: 1.5rem 0;">
-                <a href="${metadata.workflowUrl}" target="_blank" class="workflow-link">View Workflow Run</a>
-              </div>
-              <div class="file-list">
-                <h3>Files</h3>
-                ${
-                  extractedFiles.length > 0
-                    ? `
-                <ul>
-                  ${extractedFiles.map((file) => `<li><a href="./${file}">${file}</a></li>`).join('\n        ')}
-                </ul>
-                `
-                    : '<p style="text-align: center">No files found in this artifact.</p>'
-                }
-              </div>
-            </div>
-          </body>
-          </html>
-        `;
-        fs.writeFileSync(path.join(timestampDir, 'index.html'), timestampIndexHtml);
+        writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir });
       }
 
       return { extractedFiles, artifact };
