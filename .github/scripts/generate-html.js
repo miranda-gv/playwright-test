@@ -15,7 +15,7 @@ const path = require("path");
 // Environment variable passed from workflow
 const REPORT_DIR = process.env.REPORT_DIR;
 
-const pagesPath = path.join(__dirname, "..", "gh-pages"); // when using gh-pages branch
+const pagesPath = "gh-pages"; // The gh-pages directory is checked out at the root
 const templatePath = path.join(__dirname, "report-design.html");
 const outputPath = path.join(pagesPath, "index.html");
 
