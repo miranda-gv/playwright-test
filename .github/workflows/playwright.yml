@@ -1,5 +1,5 @@
 
-# gh-pages.yml
+# playwright.yml
 
 # Purpose: Main workflow for running Playwright tests and deploying HTML reports to GitHub Pages.
 # Features:
