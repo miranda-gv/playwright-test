@@ -26,6 +26,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
+    name: 🧪 Build and deploy
     runs-on: ubuntu-latest # Using ubuntu-latest for consistency with your existing setup
     environment:
       name: github-pages
