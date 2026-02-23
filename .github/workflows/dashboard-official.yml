@@ -1,3 +1,8 @@
+
+# This workflow generates a dashboard for Playwright test reports and deploys it to GitHub Pages.
+# It is triggered manually or after the 'Generate Reports Dashboard' workflow completes.
+# It processes the test report artifacts, creates a directory structure, and deploys it to GitHub Pages using the official GitHub Pages deployment action.
+
 name: 📈 Acceptance Tests Dashboard (Official GitHub Pages)
 
 on:
