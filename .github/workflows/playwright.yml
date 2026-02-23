@@ -132,6 +132,9 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
+      - name: 🔍 List gh-pages after checkout
+        run: ls -R gh-pages
+
       - name: 📑 Generate index page
         env:
           REPORT_DIR: ${{ needs.tests.outputs.report_dir }}

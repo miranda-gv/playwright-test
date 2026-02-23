@@ -8,3 +8,5 @@ node_modules/
 
 # Ignore the gh-pages branch where the dashboard is generated
 /site/
+
+artifacts_data/

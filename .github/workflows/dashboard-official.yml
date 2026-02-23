@@ -1,0 +1,75 @@
+name: 📈 Acceptance Tests Dashboard (Official GitHub Pages)
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    # Trigger this workflow when the 'Generate Reports Dashboard' (your original workflow) completes
+    workflows: ['Generate Reports Dashboard']
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: official-test-reports-dashboard
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # Using ubuntu-latest for consistency with your existing setup
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⬇️ Install jq and GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          # Install GitHub CLI (gh)
+          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+            && sudo chmod go+rb /usr/share/keyrings/githubcli-archive-keyring.gpg \
+            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+            && sudo apt update \
+            && sudo apt install gh -y
+          
+          # Verify installation
+          jq --version
+          gh --version
+
+
+      # Note: The original 'test-reports.yml' used a custom action 'actions/setup'.
+      # For this implementation, we assume necessary Node.js setup is handled by the runner.
+      # If 'actions/setup' is crucial, its content would need to be inlined or recreated.
+
+      - name: 🗂️ Process artifacts and create directory structure
+        run: node .github/workflows/scripts/process-artifacts.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: 📤 Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site # This 'site' directory is created by process-artifacts.js
+
+      - name: 🚀 Deploy GitHub Pages Artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 📝 🔗 Add deployment details to summary
+        if: success()
+        shell: bash
+        run: |
+            node .github/workflows/scripts/step-summary.js 
+              "artifacts_data/artifacts.json" 
+              "${{ steps.deployment.outputs.page_url }}"

@@ -1,0 +1,199 @@
+:root {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --card-hover-bg: #2d2d2d;
+  --text-color: #e0e0e0;
+  --accent-color: #4f92ff;
+  --border-color: #333333;
+  --header-color: #ffffff;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1, h2, h3 {
+  color: var(--header-color);
+  text-align: center;
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #77adff;
+  text-decoration: underline;
+}
+
+.back-link {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Action link styling */
+.workflow-link, .report-link {
+  margin: 0 0.5rem;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.workflow-link {
+  color: var(--accent-color);
+}
+
+.workflow-link:hover {
+  color: #77adff;
+}
+
+/* Report link styling */
+.report-link {
+  color: #4caf50;
+}
+
+.report-link:hover {
+  color: #6abf6e;
+}
+
+/* Accordion styles */
+.accordion {
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+}
+
+.accordion-header {
+  background-color: var(--card-bg);
+  padding: 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.accordion-header:hover {
+  background-color: var(--card-hover-bg);
+}
+
+.accordion-header h3 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.accordion-header .count {
+  background-color: var(--accent-color);
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.accordion-content {
+  background-color: var(--card-bg);
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.accordion-content.active {
+  max-height: 1000px;
+  padding: 1rem;
+}
+
+.run-item {
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  background-color: #252525;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.run-item:hover {
+  background-color: #2a2a2a;
+}
+
+.run-info {
+  display: flex;
+  align-items: center;
+}
+
+.run-id {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.run-links {
+  display: flex;
+  gap: 1.5rem; /* Increased gap between links */
+}
+
+.file-list {
+  margin-top: 1.5rem;
+}
+
+.file-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.file-list li {
+  margin: 0.5rem 0;
+}
+
+.file-list a {
+  display: block;
+  padding: 0.8rem;
+  background-color: #252525;
+  color: var(--text-color);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.file-list a:hover {
+  background-color: #2a2a2a;
+  color: var(--accent-color);
+}
+
+/* Dashboard info box */
+.dashboard-info {
+  background-color: #252525;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.dashboard-info p {
+  margin: 0.5rem 0;
+}
+
+.last-updated {
+  font-size: 0.9rem;
+  color: #999;
+  margin-top: 1rem;
+}
