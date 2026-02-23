@@ -75,6 +75,6 @@ jobs:
         if: success()
         shell: bash
         run: |
-            node .github/workflows/scripts/step-summary.js 
+            node .github/workflows/scripts/gha-summary.js 
               "artifacts_data/artifacts.json" 
               "${{ steps.deployment.outputs.page_url }}"

@@ -1,7 +1,9 @@
-// dashboard.js - This script updates the total artifacts count in the HTML when the document is fully loaded.
-// It assumes that the total artifacts count is stored in a global variable `window.totalArtifacts`.
+// dashboard.js
 
-  // Check if the document is fully loaded
+// This script is responsible for handling the dynamic behavior of the dashboard page.
+// It updates the total artifacts count and manages the accordion functionality for displaying artifact details.
+
+// Check if the document is fully loaded
   if (document.readyState === 'loading') {
     // Document is still loading, wait for it to be ready
     document.addEventListener('DOMContentLoaded', updateTotalArtifacts);
