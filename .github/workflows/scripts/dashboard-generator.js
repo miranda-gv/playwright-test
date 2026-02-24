@@ -11,7 +11,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-      <link rel="stylesheet" href="../../scripts/blue.css">
+      <link rel="stylesheet" href="../../scripts/styles.css">
     </head>
     <body>
       <div class="container">
@@ -41,7 +41,7 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${branchName} - ${timestamp} - Test Results</title>
-      <link rel="stylesheet" href="../../scripts/blue.css">
+      <link rel="stylesheet" href="../../scripts/styles.css">
     </head>
     <body>
       <div class="container">
