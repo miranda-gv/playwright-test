@@ -1,14 +1,14 @@
 
 # This workflow generates a dashboard for Playwright test reports and deploys it to GitHub Pages.
-# It is triggered manually or after the 'Generate Reports Dashboard' workflow completes.
+# It is triggered manually or after the 'Run Playwright Tests' workflow completes.
 # It processes the test report artifacts, creates a directory structure, and deploys it to GitHub Pages using the official GitHub Pages deployment action.
 
-name: 📈 Playwright Tests Dashboard
+name: 📈 Generate Playwright Report Dashboard
 
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ['Run Playwright Tests']
+    workflows: ['🎭 Run Playwright Tests']
     types:
       - completed
 
