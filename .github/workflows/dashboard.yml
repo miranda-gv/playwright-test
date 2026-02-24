@@ -7,7 +7,7 @@ name: 📈 Generate Playwright Report Dashboard
 
 on:
   push:
-    branches: '*'
+    branches: ['main']
     paths:
       - '.github/workflows/dashboard.yml'
   workflow_dispatch:
