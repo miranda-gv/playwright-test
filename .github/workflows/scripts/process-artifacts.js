@@ -4,13 +4,15 @@ const path = require('path');
 const {
   GITHUB_TOKEN,
   GITHUB_REPOSITORY,
-  ARTIFACT_NAME,
+  ARTIFACT_NAMES,
   SIZE_LIMIT_MB,
   SIZE_LIMIT_BYTES,
   DAYS_TO_KEEP,
   SPECIAL_BRANCHES,
   MAX_CONCURRENT_DOWNLOADS,
   MAX_CONCURRENT_EXTRACTIONS,
+  EXCLUDE_BRANCHES,
+  FILTER_BY_BRANCH,
 } = require('./config');
 const {
   execCommand,
@@ -49,7 +51,7 @@ async function main() {
   }
 
   // Copy static files
-  fs.copyFileSync('.github/workflows/scripts/styles.css', path.join(scriptsDir, 'styles.css'));
+  fs.copyFileSync('.github/workflows/scripts/blue.css', path.join(scriptsDir, 'blue.css'));
   fs.copyFileSync('.github/workflows/scripts/dashboard.js', path.join(scriptsDir, 'dashboard.js'));
 
   const stats = { totalBranches: 0, totalArtifacts: 0, totalFiles: 0, processingErrors: 0 };
@@ -62,6 +64,9 @@ async function main() {
     getAllArtifacts(),
   ]);
 
+  // Debug: print all artifact branch names
+  console.log('Artifact branches:', allArtifacts.map(a => a.workflow_run.head_branch));
+
   // Sanity check: if we have no active branches, something is wrong
   if (activeBranches.size === 0) {
     console.error(
@@ -70,20 +75,27 @@ async function main() {
     console.log('Falling back to processing all artifact branches without filtering.');
   }
 
-  // Filter artifacts by name, expiration, exclude master branch, and date
+  // Filter artifacts by configurable artifact name, branch exclusion, and date
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - DAYS_TO_KEEP);
   console.log(
     `Date filter: keeping artifacts from ${cutoffDate.toISOString().split('T')[0]} onwards`,
   );
 
-  const relevantArtifacts = allArtifacts.filter(
-    (artifact) =>
-      artifact.name === ARTIFACT_NAME &&
-      !artifact.expired &&
-      artifact.workflow_run.head_branch !== 'master' &&
-      new Date(artifact.created_at) >= cutoffDate,
-  );
+  const relevantArtifacts = allArtifacts.filter((artifact) => {
+    // Filter by multiple artifact names
+    const nameMatch = ARTIFACT_NAMES.includes(artifact.name);
+    // Expiration filter
+    const notExpired = !artifact.expired;
+    // Branch exclusion filter
+    const branch = artifact.workflow_run.head_branch;
+    const branchAllowed = FILTER_BY_BRANCH
+      ? (!EXCLUDE_BRANCHES || !EXCLUDE_BRANCHES.includes(branch))
+      : true;
+    // Date filter
+    const dateOk = new Date(artifact.created_at) >= cutoffDate;
+    return nameMatch && notExpired && branchAllowed && dateOk;
+  });
 
   console.log(
     `Filtered to ${relevantArtifacts.length} relevant artifacts from last ${DAYS_TO_KEEP} days.`,
@@ -270,7 +282,7 @@ async function main() {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Acceptance Test Results Dashboard</title>
-      <link rel="stylesheet" href="./scripts/styles.css">
+      <link rel="stylesheet" href="./scripts/blue.css">
       <script>
         window.totalArtifacts = ${stats.totalArtifacts};
       </script>
@@ -385,7 +397,7 @@ async function main() {
     );
     process.exit(1);
   }
-  console.log('Created artifacts_data/artifacts.json for step-summary.js');
+  console.log('Created artifacts_data/artifacts.json for gha-summary.js');
 
   const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log('\n--- Processing Complete ---');
