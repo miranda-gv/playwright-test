@@ -74,4 +74,7 @@ jobs:
       - name: 📝 🔗 Add deployment details to summary
         if: success()
         shell: bash
-        run: node .github/scripts2/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"
+        run: |
+          node .github/scripts2/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"
+          echo "::notice::The new report will be available here after a few minutes: ${{ steps.deployment.outputs.page_url }}"
+  
