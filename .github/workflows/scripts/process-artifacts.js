@@ -8,30 +8,18 @@ const {
   SIZE_LIMIT_MB,
   SIZE_LIMIT_BYTES,
   DAYS_TO_KEEP,
+  NUMBER_OF_ARTIFACTS_TO_SHOW,
   SPECIAL_BRANCHES,
   MAX_CONCURRENT_DOWNLOADS,
   MAX_CONCURRENT_EXTRACTIONS,
-} = require('./config');
-const {
-  execCommand,
-  fetchFromGitHubAPI,
-  getActiveBranches,
-  getAllArtifacts,
-} = require('./github-api');
-const {
-  formatDateInEST,
-  extractRunNumber,
-  downloadArtifact,
-  processConcurrently,
-} = require('./artifact-utils');
-const {
-  writePlaceholderHtml,
-  writeTimestampIndexHtml,
-} = require('./dashboard-generator');
+  EXCLUDE_BRANCHES,
+} = require('./lib/config');
+const { execCommand, getActiveBranches, getAllArtifacts } = require('./lib/github-api');
+const { formatDateInEST, extractRunNumber, downloadArtifact, processConcurrently } = require('./lib/artifact-utils');
+const { writePlaceholderHtml, writeTimestampIndexHtml } = require('./lib/dashboard-generator');
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- GitHub Actions Artifact Dashboard Generator ---');
   console.log(`Repository: ${GITHUB_REPOSITORY}`);
 
   // Setup directories
@@ -49,8 +37,14 @@ async function main() {
   }
 
   // Copy static files
-  fs.copyFileSync('.github/workflows/scripts/styles.css', path.join(scriptsDir, 'styles.css'));
-  fs.copyFileSync('.github/workflows/scripts/dashboard.js', path.join(scriptsDir, 'dashboard.js'));
+    const styleFiles = ['blue.css', 'green.css', 'gold.css', 'purple.css'];
+    for (const style of styleFiles) {
+      fs.copyFileSync(
+        `.github/workflows/scripts/styles/${style}`,
+        path.join(scriptsDir, style)
+      );
+    }
+    fs.copyFileSync('.github/workflows/scripts/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
 
   const stats = { totalBranches: 0, totalArtifacts: 0, totalFiles: 0, processingErrors: 0 };
 
@@ -62,6 +56,7 @@ async function main() {
     getAllArtifacts(),
   ]);
 
+
   // Sanity check: if we have no active branches, something is wrong
   if (activeBranches.size === 0) {
     console.error(
@@ -70,7 +65,8 @@ async function main() {
     console.log('Falling back to processing all artifact branches without filtering.');
   }
 
-  // Filter artifacts by name, expiration, exclude master branch, and date
+
+  // Filter artifacts by name, expiration, branch exclusion list, and date
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - DAYS_TO_KEEP);
   console.log(
@@ -81,7 +77,7 @@ async function main() {
     (artifact) =>
       artifact.name === ARTIFACT_NAME &&
       !artifact.expired &&
-      artifact.workflow_run.head_branch !== 'master' &&
+      (!Array.isArray(EXCLUDE_BRANCHES) || !EXCLUDE_BRANCHES.includes(artifact.workflow_run.head_branch)) &&
       new Date(artifact.created_at) >= cutoffDate,
   );
 
@@ -108,6 +104,18 @@ async function main() {
     }
 
     let artifacts = artifactsByBranch[branchName].sort((a, b) => b.id - a.id); // Newest first
+
+    // Limit to NUMBER_OF_ARTIFACTS_TO_SHOW most recent artifacts if set
+    if (
+      typeof NUMBER_OF_ARTIFACTS_TO_SHOW === 'number' &&
+      NUMBER_OF_ARTIFACTS_TO_SHOW > 0 &&
+      artifacts.length > NUMBER_OF_ARTIFACTS_TO_SHOW
+    ) {
+      artifacts = artifacts.slice(0, NUMBER_OF_ARTIFACTS_TO_SHOW);
+      console.log(
+        `  - Limiting to ${NUMBER_OF_ARTIFACTS_TO_SHOW} most recent artifacts for branch '${branchName}'`
+      );
+    }
 
     console.log(
       `- Branch '${branchName}': Found ${artifacts.length} builds from last ${DAYS_TO_KEEP} days`,
@@ -161,18 +169,6 @@ async function main() {
           `  - Creating placeholder for large artifact ${artifact.id} in branch ${branchName}`,
         );
         writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, timestampDir });
-      } else {
-        const key = `${branchName}-${timestamp}-${artifact.id}`;
-        artifactMetadata.set(key, {
-          artifact,
-          branchName,
-          timestampDir,
-          reportUrl: `./${branchName}/${timestamp}/index.html`,
-          runNumber,
-          formattedDate,
-          workflowUrl,
-        });
-        downloadQueue.push(downloadArtifact(artifact, branchName, timestampDir));
       }
     }
   }
@@ -269,15 +265,26 @@ async function main() {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Acceptance Test Results Dashboard</title>
-      <link rel="stylesheet" href="./scripts/styles.css">
+      <title>Playwright Test Results Dashboard</title>
+      <link rel="stylesheet" href="./scripts/blue.css">
       <script>
         window.totalArtifacts = ${stats.totalArtifacts};
       </script>
     </head>
     <body>
       <div class="container">
-        <h1>Acceptance Test Results Dashboard</h1>
+        <div class="theme-switcher-wrapper">
+          <div class="theme-selector">
+            <label for="theme-select">Theme</label>
+            <select id="theme-select">
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="purple">Purple</option>
+              <option value="gold">Gold</option>
+            </select>
+          </div>
+        </div>
+        <h1>Playwright Test Results Dashboard</h1>
         <div class="dashboard-info">
           <p><strong>Repository:</strong> ${GITHUB_REPOSITORY}</p>
           <p><strong>Total Branches:</strong> ${stats.totalBranches}</p>
@@ -352,7 +359,7 @@ async function main() {
   rootIndexHtml += `
         </div>
       </div>
-      <script src="./scripts/dashboard.js"></script>
+      <script src="./scripts/dashboard-logic.js"></script>
     </body>
     </html>
   `;
@@ -398,7 +405,12 @@ async function main() {
   return stats;
 }
 
-main().catch((error) => {
-  console.error('Error processing artifacts:', error);
-  process.exit(1);
-});
+// Ensure main() is called in a way that supports async/await in CommonJS
+(async () => {
+  try {
+    await main();
+  } catch (error) {
+    console.error('Error processing artifacts:', error);
+    process.exit(1);
+  }
+})();

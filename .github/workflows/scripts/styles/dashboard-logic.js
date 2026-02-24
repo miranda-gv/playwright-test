@@ -1,4 +1,4 @@
-// dashboard.js
+// dashboard-logic.js
 
 // This script is responsible for handling the dynamic behavior of the dashboard page.
 // It updates the total artifacts count and manages the accordion functionality for displaying artifact details.
@@ -61,6 +61,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+
   // Make the function available globally for HTML onclick handlers
   window.toggleAccordion = toggleAccordion;
+
+  // Theme switching logic
+  document.addEventListener('DOMContentLoaded', function() {
+    const themeSelect = document.getElementById('theme-select');
+    if (!themeSelect) return;
+    const themeLink = document.querySelector('link[rel="stylesheet"][href*="scripts/"]');
+    if (!themeLink) return;
+
+    themeSelect.addEventListener('change', function() {
+      const theme = themeSelect.value;
+      themeLink.href = `./scripts/${theme}.css`;
+      // Optionally, persist selection
+      localStorage.setItem('dashboard-theme', theme);
+    });
+
+    // Restore theme from localStorage if available
+    const savedTheme = localStorage.getItem('dashboard-theme');
+    if (savedTheme && themeSelect.querySelector(`option[value="${savedTheme}"]`)) {
+      themeSelect.value = savedTheme;
+      themeLink.href = `./scripts/${savedTheme}.css`;
+    }
+  });
   

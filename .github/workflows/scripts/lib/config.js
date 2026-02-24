@@ -9,9 +9,12 @@ const ARTIFACT_NAME = 'report-folder';
 const SIZE_LIMIT_MB = 50;
 const SIZE_LIMIT_BYTES = SIZE_LIMIT_MB * 1024 * 1024; // 50MB in bytes
 const DAYS_TO_KEEP = 30; // Keep artifacts from last 30 days for all branches
+const NUMBER_OF_ARTIFACTS_TO_SHOW = 10; // Keep only the 10 most recent artifacts per branch, regardless of age
 const SPECIAL_BRANCHES = ['main', 'test', 'dev'];
 const MAX_CONCURRENT_DOWNLOADS = 8; // Limit concurrent downloads to avoid overwhelming the API
 const MAX_CONCURRENT_EXTRACTIONS = 4; // Limit concurrent extractions to avoid I/O bottleneck
+
+const EXCLUDE_BRANCHES = []; // Add any branch names here that should be excluded from processing
 
 if (!GITHUB_TOKEN || !GITHUB_REPOSITORY) {
   console.error('Error: GITHUB_TOKEN and GITHUB_REPOSITORY environment variables are required.');
@@ -25,7 +28,9 @@ module.exports = {
   SIZE_LIMIT_MB,
   SIZE_LIMIT_BYTES,
   DAYS_TO_KEEP,
+  NUMBER_OF_ARTIFACTS_TO_SHOW,
   SPECIAL_BRANCHES,
   MAX_CONCURRENT_DOWNLOADS,
   MAX_CONCURRENT_EXTRACTIONS,
+  EXCLUDE_BRANCHES,
 };
