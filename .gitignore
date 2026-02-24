@@ -10,3 +10,5 @@ node_modules/
 /site/
 
 artifacts_data/
+
+.github/workflows/old/

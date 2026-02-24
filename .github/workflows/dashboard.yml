@@ -8,7 +8,7 @@ name: 📈 Playwright Tests Dashboard
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ['Generate Reports Dashboard']
+    workflows: ['Run Playwright Tests']
     types:
       - completed
 
@@ -20,13 +20,13 @@ permissions:
 
 # Allow only one concurrent deployment
 concurrency:
-  group: official-test-reports-dashboard
+  group: test-reports-dashboard
   cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     name: 🧪 Build and deploy
-    runs-on: ubuntu-latest # Using ubuntu-latest for consistency with your existing setup
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -51,10 +51,6 @@ jobs:
           jq --version
           gh --version
 
-
-      # Note: The original 'test-reports.yml' used a custom action 'actions/setup'.
-      # For this implementation, we assume necessary Node.js setup is handled by the runner.
-      # If 'actions/setup' is crucial, its content would need to be inlined or recreated.
 
       - name: 🗂️ Process artifacts and create directory structure
         run: node .github/workflows/scripts/process-artifacts.js
