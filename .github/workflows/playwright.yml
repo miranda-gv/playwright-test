@@ -89,7 +89,7 @@ jobs:
       - name: 📤 Package report
         run: |
           mkdir -p package/${{ steps.report-dir.outputs.name }}
-          cp -r test-reports/monocart/* package/${{ steps.report-dir.outputs.name }} || echo "No reports to copy"
+          cp -r test-reports/playwright-report/* package/${{ steps.report-dir.outputs.name }} || echo "No reports to copy"
         env:
             REPORT_DIR: ${{ steps.report-dir.outputs.name }}
 
