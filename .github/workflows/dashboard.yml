@@ -3,7 +3,7 @@
 # It is triggered manually or after the 'Run Playwright Tests' workflow completes.
 # It processes the test report artifacts, creates a directory structure, and deploys it to GitHub Pages using the official GitHub Pages deployment action.
 
-name: 📈 Generate Playwright Report Dashboard
+name: 📈 Generate Report Dashboard
 
 on:
   push:
