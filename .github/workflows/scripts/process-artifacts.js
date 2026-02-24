@@ -144,23 +144,21 @@ async function main() {
   const artifactMetadata = new Map();
 
   for (const [branchName, artifacts] of processedData.entries()) {
-    const branchDir = path.join(siteDir, branchName);
-    if (!fs.existsSync(branchDir)) {
-      fs.mkdirSync(branchDir);
-    }
-
     for (const artifact of artifacts) {
+      const runId = artifact.workflow_run.id;
       const timestamp = new Date(artifact.created_at)
         .toISOString()
         .replace(/:/g, '-')
         .replace(/\..+/, '');
-      const timestampDir = path.join(branchDir, timestamp);
-
-      if (!fs.existsSync(timestampDir)) {
-        fs.mkdirSync(timestampDir);
+      // Use timestamp as the unique folder for each run
+      const runDir = path.join(siteDir, branchName, timestamp);
+      if (!fs.existsSync(runDir)) {
+        fs.mkdirSync(runDir, { recursive: true });
       }
+      const runHtmlPath = path.join(runDir, 'index.html');
+      const extractionDir = runDir;
 
-      const workflowUrl = `https://github.com/${GITHUB_REPOSITORY}/actions/runs/${artifact.workflow_run.id}`;
+      const workflowUrl = `https://github.com/${GITHUB_REPOSITORY}/actions/runs/${runId}`;
       const runNumber = extractRunNumber(workflowUrl);
       const formattedDate = formatDateInEST(artifact.created_at);
 
@@ -168,7 +166,29 @@ async function main() {
         console.log(
           `  - Creating placeholder for large artifact ${artifact.id} in branch ${branchName}`,
         );
-        writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, timestampDir });
+        writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, timestampDir: runDir, runHtmlPath });
+      } else {
+        // Queue artifact for download and extraction
+        downloadQueue.push({
+          artifact,
+          branchName,
+          extractionDir,
+          runHtmlPath,
+          runId,
+          timestamp,
+        });
+        // Store metadata for later use in extraction
+        artifactMetadata.set(
+          `${branchName}-${runId}-${artifact.id}`,
+          {
+            runNumber,
+            formattedDate,
+            workflowUrl,
+            runHtmlPath,
+            runId,
+            timestamp,
+          }
+        );
       }
     }
   }
@@ -183,7 +203,17 @@ async function main() {
   // Process downloads in controlled batches for better performance
   const downloadResults = await processConcurrently(
     downloadQueue,
-    (downloadPromise) => downloadPromise,
+    async (item) => {
+      const { artifact, branchName, extractionDir } = item;
+      try {
+        const result = await downloadArtifact(artifact, branchName, extractionDir);
+        // Merge original queue item data with download result
+        return { ...item, ...result };
+      } catch (error) {
+        // Ensure error object has item data for logging
+        throw { ...item, error };
+      }
+    },
     MAX_CONCURRENT_DOWNLOADS,
   );
 
@@ -196,7 +226,7 @@ async function main() {
     } else {
       const { artifact, branchName, error } = result.reason;
       console.error(
-        `✗ Download failed for artifact ${artifact.id} (branch: ${branchName}): ${error.message}`,
+        `✗ Download failed for artifact ${artifact.id} (branch: ${branchName}): ${error && error.message ? error.message : error}`,
       );
       stats.processingErrors++;
     }
@@ -215,25 +245,53 @@ async function main() {
 
   const extractionResults = await processConcurrently(
     successfulDownloads,
-    async ({ artifact, branchName, timestampDir, zipPath }) => {
-      const timestamp = new Date(artifact.created_at)
-        .toISOString()
-        .replace(/:/g, '-')
-        .replace(/\..+/, '');
+    async (item) => {
+      const { artifact, branchName, extractionDir, runHtmlPath, runId, timestamp, zipPath } = item;
+      console.log(`Extracting artifact ${artifact.id} to ${extractionDir}...`);
+      
+      if (!fs.existsSync(extractionDir)) {
+        fs.mkdirSync(extractionDir, { recursive: true });
+      }
 
-      console.log(`Extracting artifact ${artifact.id} to ${timestampDir}...`);
-      execCommand(`unzip -q -o "${zipPath}" -d "${timestampDir}"`); // -q for quiet, faster output
-
-      const extractedFiles = fs.readdirSync(timestampDir).filter((file) => file !== 'artifact.zip');
+      execCommand(`unzip -q -o "${zipPath}" -d "${extractionDir}"`);
       fs.unlinkSync(zipPath); // Remove zip file
 
-      // Get metadata for this artifact
-      const key = `${branchName}-${timestamp}-${artifact.id}`;
-      const metadata = artifactMetadata.get(key);
+      // After unzipping, check if there's a nested directory (from the 'Package report' step)
+      // The artifact contains: package/REPORT_DIR/index.html
+      // So extractionDir will have a subdirectory.
+      const entries = fs.readdirSync(extractionDir, { withFileTypes: true });
+      const subdirs = entries.filter(e => e.isDirectory()).map(e => e.name);
+      
+      if (subdirs.length === 1) {
+        const subDir = path.join(extractionDir, subdirs[0]);
+        console.log(`  - Moving contents from ${subdirs[0]} to parent directory`);
+        const files = fs.readdirSync(subDir);
+        for (const file of files) {
+          const oldPath = path.join(subDir, file);
+          const newPath = path.join(extractionDir, file);
+          if (fs.existsSync(newPath)) {
+            if (fs.lstatSync(newPath).isDirectory()) {
+                fs.rmSync(newPath, { recursive: true, force: true });
+            } else {
+                fs.unlinkSync(newPath);
+            }
+          }
+          fs.renameSync(oldPath, newPath);
+        }
+        fs.rmdirSync(subDir);
+      }
 
-      // Create index.html if it doesn't exist
-      if (!fs.existsSync(path.join(timestampDir, 'index.html'))) {
-        writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir });
+      const extractedFiles = fs.readdirSync(extractionDir);
+      
+      // Verification: Ensure index.html exists
+      if (!fs.existsSync(runHtmlPath)) {
+          // Get metadata for this artifact
+          const key = `${branchName}-${runId}-${artifact.id}`;
+          const metadata = artifactMetadata.get(key);
+          console.log(`  - Warning: index.html not found after extraction, generating fallback.`);
+          writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir: extractionDir, runHtmlPath, runId });
+      } else {
+          console.log(`  - Found index.html at ${runHtmlPath}`);
       }
 
       return { extractedFiles, artifact };
@@ -258,112 +316,15 @@ async function main() {
 
   // --- Phase 4: Generate Final Dashboard ---
   console.log('\n--- Phase 4: Generating Final Dashboard ---');
-
-  let rootIndexHtml = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Playwright Test Results Dashboard</title>
-      <link rel="stylesheet" href="./scripts/blue.css">
-      <script>
-        window.totalArtifacts = ${stats.totalArtifacts};
-      </script>
-    </head>
-    <body>
-      <div class="container">
-        <div class="theme-switcher-wrapper">
-          <div class="theme-selector">
-            <label for="theme-select">Theme</label>
-            <select id="theme-select">
-              <option value="blue">Blue</option>
-              <option value="green">Green</option>
-              <option value="purple">Purple</option>
-              <option value="gold">Gold</option>
-            </select>
-          </div>
-        </div>
-        <h1>Playwright Test Results Dashboard</h1>
-        <div class="dashboard-info">
-          <p><strong>Repository:</strong> ${GITHUB_REPOSITORY}</p>
-          <p><strong>Total Branches:</strong> ${stats.totalBranches}</p>
-          <p><strong>Total Artifacts:</strong> <span id="total-artifacts">${stats.totalArtifacts}</span></p>
-          <p class="last-updated">Last updated: ${formatDateInEST(new Date())}</p>
-        </div>
-        <div id="accordions">
-  `;
-
-  // Sort branches (main first, then alphabetically)
-  const sortedBranches = [...processedData.keys()].sort((a, b) => {
-    if (a === 'main') return -1;
-    if (b === 'main') return 1;
-    return a.localeCompare(b);
+  const { generateRootDashboardHtml } = require('./lib/dashboard-generator');
+  const rootIndexHtml = generateRootDashboardHtml({
+    GITHUB_REPOSITORY,
+    stats,
+    processedData,
+    formatDateInEST,
+    extractRunNumber,
+    SIZE_LIMIT_MB,
   });
-
-  for (const branchName of sortedBranches) {
-    const artifacts = processedData
-      .get(branchName)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-    rootIndexHtml += `
-      <div class="accordion">
-        <div class="accordion-header" onclick="window.toggleAccordion(this)">
-          <h3>${branchName}</h3>
-          <span class="count">${artifacts.length} runs</span>
-        </div>
-        <div class="accordion-content">
-    `;
-
-    for (const artifact of artifacts) {
-      const workflowUrl = `https://github.com/${GITHUB_REPOSITORY}/actions/runs/${artifact.workflow_run.id}`;
-      const runNumber = extractRunNumber(workflowUrl);
-      const formattedDate = formatDateInEST(artifact.created_at);
-
-      if (artifact.is_placeholder) {
-        rootIndexHtml += `
-          <div class="run-item placeholder">
-            <div class="run-info">
-              <span class="run-id">#${runNumber} (${formattedDate})</span>
-              <span class="placeholder-notice">Artifact > ${SIZE_LIMIT_MB}MB</span>
-            </div>
-            <div class="run-links">
-              <a href="${workflowUrl}" target="_blank" class="workflow-link">View on GitHub</a>
-            </div>
-          </div>
-        `;
-      } else {
-        const timestamp = new Date(artifact.created_at)
-          .toISOString()
-          .replace(/:/g, '-')
-          .replace(/\..+/, '');
-        const reportUrl = `./${branchName}/${timestamp}/index.html`;
-
-        rootIndexHtml += `
-          <div class="run-item">
-            <div class="run-info">
-              <span class="run-id">#${runNumber} (${formattedDate})</span>
-            </div>
-            <div class="run-links">
-              <a href="${reportUrl}" target="_blank" class="report-link">View Report</a>
-              <a href="${workflowUrl}" target="_blank" class="workflow-link">View Workflow</a>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    rootIndexHtml += `</div></div>`; // Close accordion-content and accordion
-  }
-
-  rootIndexHtml += `
-        </div>
-      </div>
-      <script src="./scripts/dashboard-logic.js"></script>
-    </body>
-    </html>
-  `;
-
   fs.writeFileSync(path.join(siteDir, 'index.html'), rootIndexHtml);
 
   // --- Phase 5: Create artifacts.json for step-summary.js ---
