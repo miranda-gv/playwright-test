@@ -8,7 +8,6 @@ name: 📈 Playwright Tests Dashboard
 on:
   workflow_dispatch:
   workflow_run:
-    # Trigger this workflow when the 'Generate Reports Dashboard' (your original workflow) completes
     workflows: ['Generate Reports Dashboard']
     types:
       - completed

@@ -353,7 +353,7 @@ async function main() {
     );
     process.exit(1);
   }
-  console.log('Created artifacts_data/artifacts.json for step-summary.js');
+  console.log('Created artifacts_data/artifacts.json for gha-step-summary.js');
 
   const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log('\n--- Processing Complete ---');
