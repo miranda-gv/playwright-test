@@ -77,7 +77,7 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   fs.writeFileSync(runHtmlPath, html);
 }
 function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB }) {
-  let rootIndexHtml = `
+    rootIndexHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,6 +89,17 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
 <body>
   <div class="container">
     <h1>Playwright Reports Dashboard</h1>
+    <div class="theme-switcher-wrapper">
+      <div class="theme-selector">
+        <label for="theme-select">Theme:</label>
+        <select id="theme-select">
+          <option value="blue">Blue</option>
+          <option value="gold">Gold</option>
+          <option value="green">Green</option>
+          <option value="purple">Purple</option>
+        </select>
+      </div>
+    </div>
     <div class="dashboard-info">
       <p><strong>Repository:</strong> ${GITHUB_REPOSITORY}</p>
       <p><strong>Total Branches:</strong> ${stats.totalBranches}</p>
