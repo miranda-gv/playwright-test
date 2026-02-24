@@ -57,7 +57,7 @@ jobs:
 
 
       - name: 🗂️ Process artifacts and create directory structure
-        run: node .github/workflows/scripts/process-artifacts.js
+        run: node .github/scripts2/process-artifacts.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -74,4 +74,4 @@ jobs:
       - name: 📝 🔗 Add deployment details to summary
         if: success()
         shell: bash
-        run: node .github/workflows/scripts/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"
+        run: node .github/scripts2/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"

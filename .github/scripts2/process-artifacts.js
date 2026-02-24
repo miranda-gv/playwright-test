@@ -40,11 +40,11 @@ async function main() {
     const styleFiles = ['blue.css', 'green.css', 'gold.css', 'purple.css'];
     for (const style of styleFiles) {
       fs.copyFileSync(
-        `.github/workflows/scripts/styles/${style}`,
+        `.github/scripts2/styles/${style}`,
         path.join(scriptsDir, style)
       );
     }
-    fs.copyFileSync('.github/workflows/scripts/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
+    fs.copyFileSync('.github/scripts2/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
 
   const stats = { totalBranches: 0, totalArtifacts: 0, totalFiles: 0, processingErrors: 0 };
 
