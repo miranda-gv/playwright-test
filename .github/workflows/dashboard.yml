@@ -7,7 +7,7 @@ name: 📈 Generate Report Dashboard
 
 on:
   push:
-    branches: ['main']
+    branches: '*'
     paths:
       - '.github/workflows/dashboard.yml'
   workflow_dispatch:
