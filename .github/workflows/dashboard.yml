@@ -6,6 +6,10 @@
 name: 📈 Generate Playwright Report Dashboard
 
 on:
+  push:
+    branches: '*'
+    paths:
+      - '.github/workflows/dashboard.yml'
   workflow_dispatch:
   workflow_run:
     workflows: ['🎭 Run Playwright Tests']
