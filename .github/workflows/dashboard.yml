@@ -55,7 +55,6 @@ jobs:
           jq --version
           gh --version
 
-
       - name: 🗂️ Process artifacts and create directory structure
         run: node .github/scripts2/process-artifacts.js
         env:
