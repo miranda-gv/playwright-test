@@ -231,7 +231,7 @@ async function main() {
 
   const successfulDownloads = [];
 
-  downloadResults.forEach((result, index) => {
+  downloadResults.forEach((result) => {
     if (result.status === 'fulfilled') {
       successfulDownloads.push(result.value);
     } else {
