@@ -1,4 +1,4 @@
-// step-summary.js
+// gha-step-summary.js
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 /* The above comments disable the ESLint rules that are causing problems

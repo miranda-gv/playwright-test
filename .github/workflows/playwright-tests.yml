@@ -85,7 +85,8 @@ jobs:
           
       - name: 🎭 Add Test Summary HTML Table
         if: always()
-        run: node .github/dashboard-scripts/lib/gha-step-summary.js
+        # run: node .github/dashboard-scripts/lib/gha-step-summary.js
+        run: node .github/dashboard-scripts/lib/gha-step-summary.js artifacts_data/artifacts.json https://<your-dashboard-url>/
 
       - name: 📁 Set Report Folder Name
         id: report-dir
@@ -100,7 +101,7 @@ jobs:
         env:
             REPORT_DIR: ${{ steps.report-dir.outputs.name }}
             REPORT_TYPE: ${{ env.REPORT_TYPE }}
-            
+
       - name: 📦 Upload Report Artifact
         uses: actions/upload-artifact@v4
         if: hashFiles('package/**/*') != ''
