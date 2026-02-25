@@ -14,6 +14,8 @@ const {
   MAX_CONCURRENT_DOWNLOADS,
   MAX_CONCURRENT_EXTRACTIONS,
   EXCLUDE_BRANCHES,
+  SHOW_EMOJIS,
+  SHOW_STATUS_BORDERS,
 } = require('./lib/config');
 const { execCommand, getActiveBranches, getAllArtifacts, getAllRuns } = require('./lib/github-api');
 const { formatDateInEST, extractRunNumber, downloadArtifact, processConcurrently } = require('./lib/artifact-utils');
@@ -333,6 +335,8 @@ async function main() {
     formatDateInEST,
     extractRunNumber,
     SIZE_LIMIT_MB,
+    SHOW_EMOJIS,
+    SHOW_STATUS_BORDERS,
   });
   fs.writeFileSync(path.join(siteDir, 'index.html'), rootIndexHtml);
 

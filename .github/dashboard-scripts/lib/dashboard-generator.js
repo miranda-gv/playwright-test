@@ -108,7 +108,7 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   }
   fs.writeFileSync(runHtmlPath, html);
 }
-function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB }) {
+function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB, SHOW_EMOJIS, SHOW_STATUS_BORDERS }) {
   let rootIndexHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -174,14 +174,14 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
       const reportUrl = `./${branchName}/${timestamp}/index.html`;
       const conclusion = artifact.run_conclusion || 'unknown';
       const emoji = getResultEmoji(conclusion);
-      const statusClass = getStatusClass(conclusion);
+      const statusClass = SHOW_STATUS_BORDERS ? getStatusClass(conclusion) : '';
 
       if (artifact.is_placeholder) {
         rootIndexHtml += `
           <div class="run-item placeholder ${statusClass}">
             <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
-              <span class="run-result" title="${conclusion}">${emoji}</span>
+              ${SHOW_EMOJIS ? `<span class="run-result" title="${conclusion}">${emoji}</span>` : ''}
               <span class="placeholder-notice">Artifact > ${SIZE_LIMIT_MB}MB</span>
             </div>
             <div class="run-links">
@@ -195,7 +195,7 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
           <div class="run-item ${statusClass}">
             <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
-              <span class="run-result" title="${conclusion}">${emoji}</span>
+              ${SHOW_EMOJIS ? `<span class="run-result" title="${conclusion}">${emoji}</span>` : ''}
             </div>
             <div class="run-links">
               <a href="${reportUrl}" target="_blank" class="report-link">View Report</a>

@@ -13,6 +13,10 @@ const MAX_CONCURRENT_EXTRACTIONS = 4; // Limit concurrent extractions to avoid I
 
 const EXCLUDE_BRANCHES = []; // Add any branch names here that should be excluded from processing
 
+// UI Configuration
+const SHOW_EMOJIS = false; // Set to true to show result emojis (✅, ❌, etc.)
+const SHOW_STATUS_BORDERS = true; // Set to true to show status-colored left borders
+
 if (!GITHUB_TOKEN || !GITHUB_REPOSITORY) {
   console.error('Error: GITHUB_TOKEN and GITHUB_REPOSITORY environment variables are required.');
   process.exit(1);
@@ -30,4 +34,6 @@ module.exports = {
   MAX_CONCURRENT_DOWNLOADS,
   MAX_CONCURRENT_EXTRACTIONS,
   EXCLUDE_BRANCHES,
+  SHOW_EMOJIS,
+  SHOW_STATUS_BORDERS,
 };
