@@ -10,6 +10,6 @@ node_modules/
 /site*/
 
 artifacts_data/
-.github/workflows/old/
+.github/workflows/legacy/
 legacy-scripts/
 *.env
