@@ -4,18 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "process-artifacts": "node .github/dashboard-scripts/process-artifacts.js"
+    "process-artifacts": "node .github/dashboard-scripts/process-artifacts.js",
+    "test": "npx playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Miranda George",
+  "license": "UNLICENSED",
   "devDependencies": {
-    "@playwright/test": "^1.51.1",
+    "@playwright/test": "^1.58.2",
     "@types/luxon": "^3.7.1",
     "@types/node": "^22.14.0",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "github-actions-ctrf": "^0.0.58",
     "monocart-reporter": "^2.9.17",
     "playwright": "^1.58.2",
     "playwright-ctrf-json-reporter": "^0.0.20",
