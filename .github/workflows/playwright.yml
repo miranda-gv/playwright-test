@@ -51,7 +51,7 @@ jobs:
         run: npm run lint # Fail early if code style or syntax is broken
 
       - name: 🧪 Run Playwright Tests
-        run: npx playwright test --project=chromium -g "test-1.spec.ts"
+        run: npx playwright test tests/playwright/test-1.spec.ts --project=chromium
         continue-on-error: true
 
       - name: 🖥️ 📑 Publish CTRF Summary

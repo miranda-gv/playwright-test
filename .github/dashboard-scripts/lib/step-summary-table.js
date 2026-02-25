@@ -8,7 +8,14 @@
 // match what this script expects.
 
 const fs = require('fs');
-const results = JSON.parse(fs.readFileSync('test-reports/playwright-report.json', 'utf-8'));
+const reportPath = 'test-reports/playwright-report.json';
+
+if (!fs.existsSync(reportPath)) {
+  console.log(`Skipping summary: ${reportPath} not found.`);
+  process.exit(0);
+}
+
+const results = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
 
 const stats = {
   passed: 0,
