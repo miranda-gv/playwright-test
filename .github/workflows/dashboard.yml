@@ -56,7 +56,7 @@ jobs:
           gh --version
 
       - name: 🗂️ Process artifacts and create directory structure
-        run: node .github/scripts2/process-artifacts.js
+        run: node .github/dashboard-scripts/process-artifacts.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -74,6 +74,6 @@ jobs:
         if: success()
         shell: bash
         run: |
-          node .github/scripts2/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"
+          node .github/dashboard-scripts/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }}"
           echo "::notice::The new report will be available here after a few minutes: ${{ steps.deployment.outputs.page_url }}"
   

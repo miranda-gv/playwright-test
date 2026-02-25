@@ -1,6 +1,8 @@
 // Modularized process-artifacts.js
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: 'config/.env' });
+
 const {
   GITHUB_TOKEN,
   GITHUB_REPOSITORY,
@@ -40,11 +42,11 @@ async function main() {
     const styleFiles = ['blue.css', 'green.css', 'gold.css', 'purple.css'];
     for (const style of styleFiles) {
       fs.copyFileSync(
-        `.github/scripts2/styles/${style}`,
+        `.github/dashboard-scripts/styles/${style}`,
         path.join(scriptsDir, style)
       );
     }
-    fs.copyFileSync('.github/scripts2/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
+    fs.copyFileSync('.github/dashboard-scripts/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
 
   const stats = { totalBranches: 0, totalArtifacts: 0, totalFiles: 0, processingErrors: 0 };
 

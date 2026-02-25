@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "process-artifacts": "node .github/dashboard-scripts/process-artifacts.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -11,14 +13,23 @@
     "@playwright/test": "^1.51.1",
     "@types/luxon": "^3.7.1",
     "@types/node": "^22.14.0",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "monocart-reporter": "^2.9.17",
     "playwright": "^1.58.2",
     "playwright-ctrf-json-reporter": "^0.0.20",
+    "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
+    "dotenv": "^17.3.1",
     "luxon": "^3.6.1"
+  }
+  ,
+  "engines": {
+    "node": "22.x"
   }
 }

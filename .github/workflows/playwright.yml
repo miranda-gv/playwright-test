@@ -80,7 +80,7 @@ jobs:
           
       - name: 🎭 Add Test Summary HTML Table
         if: always()
-        run: node .github/scripts1/gha-step-summary.js
+        run: node .github/legacy-scripts/gha-step-summary.js
 
       - name: 📁 Set Report Folder Name
         id: report-dir
@@ -140,7 +140,7 @@ jobs:
       - name: 📑 Generate index page
         env:
           REPORT_DIR: ${{ needs.tests.outputs.report_dir }}
-        run: node .github/scripts1/generate-html.js
+        run: node .github/legacy-scripts/generate-html.js
 
       - name: 🔍 List gh-pages after index generation
         run: ls -R gh-pages
