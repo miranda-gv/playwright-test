@@ -58,7 +58,6 @@ async function main() {
     getAllArtifacts(),
   ]);
 
-
   // Sanity check: if we have no active branches, something is wrong
   if (activeBranches.size === 0) {
     console.error(
@@ -66,7 +65,6 @@ async function main() {
     );
     console.log('Falling back to processing all artifact branches without filtering.');
   }
-
 
   // Filter artifacts by name, expiration, branch exclusion list, and date
   const cutoffDate = new Date();
@@ -329,7 +327,7 @@ async function main() {
   });
   fs.writeFileSync(path.join(siteDir, 'index.html'), rootIndexHtml);
 
-  // --- Phase 5: Create artifacts.json for step-summary.js ---
+  // --- Phase 5: Create artifacts.json ---
   console.log('\n--- Phase 5: Creating artifacts.json ---');
 
   const artifactsJson = {};
@@ -355,7 +353,7 @@ async function main() {
     );
     process.exit(1);
   }
-  console.log('Created artifacts_data/artifacts.json for gha-step-summary.js');
+  console.log('Created artifacts_data/artifacts.json');
 
   const totalDuration = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log('\n--- Processing Complete ---');
