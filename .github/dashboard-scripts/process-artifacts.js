@@ -112,7 +112,7 @@ async function main() {
     ) {
       artifacts = artifacts.slice(0, NUMBER_OF_ARTIFACTS_TO_SHOW);
       console.log(
-        `  - Limiting to ${NUMBER_OF_ARTIFACTS_TO_SHOW} most recent artifacts for branch '${branchName}'`
+        `- Limiting to ${NUMBER_OF_ARTIFACTS_TO_SHOW} most recent artifacts for branch '${branchName}'`
       );
     }
 
@@ -221,7 +221,6 @@ async function main() {
   downloadResults.forEach((result, index) => {
     if (result.status === 'fulfilled') {
       successfulDownloads.push(result.value);
-      console.log(`✓ Download ${index + 1}/${downloadResults.length} completed`);
     } else {
       const { artifact, branchName, error } = result.reason;
       console.error(
@@ -233,7 +232,7 @@ async function main() {
 
   const downloadDuration = ((Date.now() - downloadStartTime) / 1000).toFixed(1);
   console.log(
-    `Download phase complete: ${successfulDownloads.length}/${downloadQueue.length} successful (${downloadDuration}s)`,
+    `\nDownload phase complete: ${successfulDownloads.length}/${downloadQueue.length} successful (${downloadDuration}s)`,
   );
 
   // Process successful downloads in parallel
@@ -263,7 +262,6 @@ async function main() {
       
       if (subdirs.length === 1) {
         const subDir = path.join(extractionDir, subdirs[0]);
-        console.log(`  - Moving contents from ${subdirs[0]} to parent directory`);
         const files = fs.readdirSync(subDir);
         for (const file of files) {
           const oldPath = path.join(subDir, file);
@@ -289,10 +287,9 @@ async function main() {
           const metadata = artifactMetadata.get(key);
           console.log('  - Warning: index.html not found after extraction, generating fallback.');
           writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir: extractionDir, runHtmlPath, runId });
-      } else {
-          console.log(`  - Found index.html at ${runHtmlPath}`);
       }
 
+      console.log('completed...');
       return { extractedFiles, artifact };
     },
     MAX_CONCURRENT_EXTRACTIONS,
@@ -310,7 +307,7 @@ async function main() {
 
   const extractionDuration = ((Date.now() - extractionStartTime) / 1000).toFixed(1);
   console.log(
-    `Extraction phase complete: ${extractionResults.length} artifacts processed (${extractionDuration}s)`,
+    `\nExtraction phase complete: ${extractionResults.length} artifacts processed (${extractionDuration}s)`,
   );
 
   // --- Phase 4: Generate Final Dashboard ---
@@ -360,7 +357,7 @@ async function main() {
   console.log(`Total artifacts processed: ${stats.totalArtifacts}`);
   console.log(`Total files extracted: ${stats.totalFiles}`);
   console.log(`Processing errors: ${stats.processingErrors}`);
-  console.log(`Total processing time: ${totalDuration}s`);
+  console.log(`Total processing time: ${totalDuration}s\n`);
 
   return stats;
 }

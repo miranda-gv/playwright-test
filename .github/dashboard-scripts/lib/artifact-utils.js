@@ -36,13 +36,15 @@ async function downloadArtifact(artifact, branchName, timestampDir) {
       fs.writeFileSync(tokenFilePath, `Authorization: token ${GITHUB_TOKEN}`, { mode: 0o600 });
       console.log(`Downloading artifact ${artifact.id} for branch ${branchName}...`);
       execCommand(
-        `curl -L -H @${tokenFilePath} -o "${zipPath}" "${artifact.archive_download_url}" --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 1 --compressed`,
+        `curl -s -L -H @${tokenFilePath} -o "${zipPath}" "${artifact.archive_download_url}" --connect-timeout 30 --max-time 300 --retry 3 --retry-delay 1 --compressed`,
       );
+      console.log('completed...');
       if (!fs.existsSync(zipPath) || fs.statSync(zipPath).size === 0) {
         throw new Error('Downloaded file is empty or does not exist.');
       }
       resolve({ artifact, branchName, timestampDir, zipPath });
     } catch (error) {
+      console.error(`Error downloading artifact ${artifact.id} for branch ${branchName}:`, error);
       reject({ artifact, branchName, error });
     } finally {
       if (fs.existsSync(tokenFilePath)) {
