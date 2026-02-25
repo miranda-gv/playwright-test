@@ -290,7 +290,7 @@ async function main() {
           // Get metadata for this artifact
           const key = `${branchName}-${runId}-${artifact.id}`;
           const metadata = artifactMetadata.get(key);
-          console.log(`  - Warning: index.html not found after extraction, generating fallback.`);
+          console.log('  - Warning: index.html not found after extraction, generating fallback.');
           writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir: extractionDir, runHtmlPath, runId });
       } else {
           console.log(`  - Found index.html at ${runHtmlPath}`);
@@ -350,7 +350,7 @@ async function main() {
     );
   } catch (error) {
     console.error(
-      `Error: Failed to write artifacts.json. Check disk space and permissions.`,
+      'Error: Failed to write artifacts.json. Check disk space and permissions.',
       error,
     );
     process.exit(1);

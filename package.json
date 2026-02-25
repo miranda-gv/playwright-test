@@ -13,6 +13,7 @@
   "author": "Miranda George",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@types/luxon": "^3.7.1",
     "@types/node": "^22.14.0",
@@ -20,6 +21,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "github-actions-ctrf": "^0.0.58",
+    "globals": "^17.3.0",
     "monocart-reporter": "^2.9.17",
     "playwright": "^1.58.2",
     "playwright-ctrf-json-reporter": "^0.0.20",

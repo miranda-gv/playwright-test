@@ -1,10 +1,5 @@
-// gha-step-summary.js
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable no-undef */
-/* The above comments disable the ESLint rules that are causing problems
-  when using CommonJS syntax in a TypeScript file.
-  
-  This script is intended to be run in a GitHub Actions workflow
+
+/* This script is intended to be run in a GitHub Actions workflow
   and is responsible for generating a summary of the latest test results
   and adding it to the workflow summary.
   It reads the artifacts data from a JSON file, finds the most recent artifact

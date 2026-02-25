@@ -1,9 +1,8 @@
 // Dashboard HTML and file generation helpers for process-artifacts.js
 const fs = require('fs');
-const path = require('path');
 const { SIZE_LIMIT_MB } = require('./config');
 
-function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, timestampDir, runHtmlPath }) {
+function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, runHtmlPath }) {
   const placeholderHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -36,7 +35,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
   fs.writeFileSync(runHtmlPath, placeholderHtml);
 }
 
-function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, timestampDir, runHtmlPath, runId }) {
+function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, runHtmlPath }) {
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -77,7 +76,7 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   fs.writeFileSync(runHtmlPath, html);
 }
 function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB }) {
-    rootIndexHtml = `
+  let rootIndexHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -169,7 +168,7 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
       }
     }
 
-    rootIndexHtml += `</div></div>`; // Close accordion-content and accordion
+    rootIndexHtml += '</div></div>'; // Close accordion-content and accordion
   }
 
   rootIndexHtml += `

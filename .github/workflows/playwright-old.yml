@@ -10,8 +10,8 @@
 name: 🎭 Run Playwright Tests
 
 on:
-  push:
-    branches: '*'
+  # push:
+  #   branches: '*'
   # pull_request:
   #   branches: [main]
   workflow_dispatch:
