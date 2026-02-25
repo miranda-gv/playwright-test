@@ -2,7 +2,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { GITHUB_TOKEN, SIZE_LIMIT_MB } = require('./config');
+const { GITHUB_TOKEN } = require('./config');
 const { execCommand } = require('./github-api');
 
 function formatDateInEST(date) {

@@ -4,7 +4,6 @@ const path = require('path');
 require('dotenv').config({ path: 'config/.env' });
 
 const {
-  GITHUB_TOKEN,
   GITHUB_REPOSITORY,
   ARTIFACT_NAME,
   SIZE_LIMIT_MB,

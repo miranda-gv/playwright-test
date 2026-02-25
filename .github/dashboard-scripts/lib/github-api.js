@@ -1,6 +1,6 @@
 // GitHub API helpers for process-artifacts.js
 const { execSync } = require('child_process');
-const { GITHUB_TOKEN, GITHUB_REPOSITORY } = require('./config');
+const { GITHUB_REPOSITORY } = require('./config');
 
 function execCommand(command, options = {}) {
   try {

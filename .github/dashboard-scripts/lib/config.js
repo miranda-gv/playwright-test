@@ -1,8 +1,5 @@
 // Configuration and environment variable checks for process-artifacts.js
 
-const path = require('path');
-const os = require('os');
-
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY; // Format: "owner/repo"
 const ARTIFACT_NAME = 'report-folder';
