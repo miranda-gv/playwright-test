@@ -2,6 +2,39 @@
 const fs = require('fs');
 const { SIZE_LIMIT_MB } = require('./config');
 
+/**
+ * Gets emoji for run result
+ * @param {string} result - Run result status
+ * @returns {string} Emoji
+ */
+function getResultEmoji(result) {
+  const emojiMap = {
+    success: '✅',
+    failure: '❌',
+    timed_out: '⚠️',
+    cancelled: '🚫',
+    startup_failure: '❌',
+  };
+  // Handle common GitHub Actions conclusion states
+  if (result === 'succeeded') return '✅';
+  if (result === 'failed') return '❌';
+  if (result === 'partiallySucceeded') return '⚠️';
+  if (result === 'canceled') return '🚫';
+  
+  return emojiMap[result] || '❓';
+}
+
+/**
+ * Gets CSS class for run status
+ * @param {string} result - Run result status
+ * @returns {string} CSS class name
+ */
+function getStatusClass(result) {
+  if (result === 'success' || result === 'succeeded') return 'status-success';
+  if (result === 'failure' || result === 'failed' || result === 'startup_failure') return 'status-fail';
+  return 'status-other';
+}
+
 function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, runHtmlPath }) {
   const placeholderHtml = `
     <!DOCTYPE html>
@@ -139,12 +172,16 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
         .replace(/\..+/, '');
       // New: link to site/[branch]/[run-date]/index.html
       const reportUrl = `./${branchName}/${timestamp}/index.html`;
+      const conclusion = artifact.run_conclusion || 'unknown';
+      const emoji = getResultEmoji(conclusion);
+      const statusClass = getStatusClass(conclusion);
 
       if (artifact.is_placeholder) {
         rootIndexHtml += `
-          <div class="run-item placeholder">
-            <div class="run-info">
+          <div class="run-item placeholder ${statusClass}">
+            <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
+              <span class="run-result" title="${conclusion}">${emoji}</span>
               <span class="placeholder-notice">Artifact > ${SIZE_LIMIT_MB}MB</span>
             </div>
             <div class="run-links">
@@ -155,9 +192,10 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
         `;
       } else {
         rootIndexHtml += `
-          <div class="run-item">
-            <div class="run-info">
+          <div class="run-item ${statusClass}">
+            <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
+              <span class="run-result" title="${conclusion}">${emoji}</span>
             </div>
             <div class="run-links">
               <a href="${reportUrl}" target="_blank" class="report-link">View Report</a>
@@ -185,4 +223,6 @@ module.exports = {
   writePlaceholderHtml,
   writeTimestampIndexHtml,
   generateRootDashboardHtml,
+  getResultEmoji,
+  getStatusClass,
 };

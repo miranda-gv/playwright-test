@@ -62,9 +62,27 @@ async function getAllArtifacts() {
   return allArtifacts;
 }
 
+async function getAllRuns() {
+  console.log('Fetching all workflow runs...');
+  const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/actions/runs`);
+  let allRuns = [];
+  if (Array.isArray(response)) {
+    for (const pageResponse of response) {
+      if (pageResponse.workflow_runs && Array.isArray(pageResponse.workflow_runs)) {
+        allRuns.push(...pageResponse.workflow_runs);
+      }
+    }
+  } else if (response.workflow_runs && Array.isArray(response.workflow_runs)) {
+    allRuns = response.workflow_runs;
+  }
+  console.log(`Found ${allRuns.length} total workflow runs.`);
+  return allRuns;
+}
+
 module.exports = {
   execCommand,
   fetchFromGitHubAPI,
   getActiveBranches,
   getAllArtifacts,
+  getAllRuns,
 };

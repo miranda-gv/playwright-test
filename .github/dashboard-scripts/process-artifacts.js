@@ -15,7 +15,7 @@ const {
   MAX_CONCURRENT_EXTRACTIONS,
   EXCLUDE_BRANCHES,
 } = require('./lib/config');
-const { execCommand, getActiveBranches, getAllArtifacts } = require('./lib/github-api');
+const { execCommand, getActiveBranches, getAllArtifacts, getAllRuns } = require('./lib/github-api');
 const { formatDateInEST, extractRunNumber, downloadArtifact, processConcurrently } = require('./lib/artifact-utils');
 const { writePlaceholderHtml, writeTimestampIndexHtml } = require('./lib/dashboard-generator');
 
@@ -52,10 +52,17 @@ async function main() {
   // --- Phase 1: Fetch and Filter Data ---
   console.log('\n--- Phase 1: Fetching and Filtering Data ---');
 
-  const [activeBranches, allArtifacts] = await Promise.all([
+  const [activeBranches, allArtifacts, allRuns] = await Promise.all([
     getActiveBranches(),
     getAllArtifacts(),
+    getAllRuns(),
   ]);
+
+  // Create a map of run ID to conclusion
+  const runResults = new Map();
+  allRuns.forEach(run => {
+    runResults.set(run.id, run.conclusion);
+  });
 
   // Sanity check: if we have no active branches, something is wrong
   if (activeBranches.size === 0) {
@@ -78,7 +85,13 @@ async function main() {
       !artifact.expired &&
       (!Array.isArray(EXCLUDE_BRANCHES) || !EXCLUDE_BRANCHES.includes(artifact.workflow_run.head_branch)) &&
       new Date(artifact.created_at) >= cutoffDate,
-  );
+  ).map(artifact => {
+    // Enrich with run conclusion
+    return {
+      ...artifact,
+      run_conclusion: runResults.get(artifact.workflow_run.id) || 'unknown'
+    };
+  });
 
   console.log(
     `Filtered to ${relevantArtifacts.length} relevant artifacts from last ${DAYS_TO_KEEP} days.`,

@@ -52,7 +52,6 @@ jobs:
 
       - name: 🧪 Run Playwright Tests
         run: npx playwright test tests/playwright/test-1.spec.ts --project=chromium
-        continue-on-error: true
 
       - name: 🖥️ 📑 Publish CTRF Summary
         if: always()
@@ -63,6 +62,7 @@ jobs:
         run: node .github/dashboard-scripts/lib/step-summary-table.js
 
       - name: 📁 Set Report Folder Name
+        if: always()
         id: report-dir
         run: |
           REPORT_DIR=$(TZ="America/New_York" date +'%Y-%m-%d_%H-%M-%S')_${{ github.run_id }}
