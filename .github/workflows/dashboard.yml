@@ -39,6 +39,11 @@ jobs:
       - name: 📦 Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
       - name: ⬇️ Install jq and GitHub CLI
         run: |
           sudo apt-get update
