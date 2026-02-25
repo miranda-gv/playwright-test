@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       report_type:
-        description: 'Which report: monocart or playwright'
+        description: 'Report type: monocart or playwright'
         required: false
         default: 'monocart'
 
