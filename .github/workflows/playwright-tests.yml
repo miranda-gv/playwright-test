@@ -83,11 +83,9 @@ jobs:
           github-actions-ctrf test-reports/ctrf-report.json
         if: always()
           
-      - name: 🎭 Add Test Summary HTML Table
+      - name: 📊 Add Test Summary HTML Table
         if: always()
-        run: node .github/dashboard-scripts/lib/gha-step-summary-table.js
-        # run: node .github/dashboard-scripts/lib/gha-step-summary.js "artifacts_data/artifacts.json" "${{ steps.deployment.outputs.page_url }} || 'N/A' }}"
-
+        run: node .github/dashboard-scripts/lib/step-summary-table.js
 
       - name: 📁 Set Report Folder Name
         id: report-dir
@@ -111,3 +109,10 @@ jobs:
           path: package/
           retention-days: 30
           if-no-files-found: warn
+
+      - name: 🔗 Add Dashboard URL
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 ### The new report will be available here after a few minutes: https://miranda-gv.github.io/playwright-test/" >> $GITHUB_STEP_SUMMARY
+
