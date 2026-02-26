@@ -43,9 +43,9 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-      <link rel="stylesheet" href="../../scripts/blue.css">
+      <link rel="stylesheet" href="../../scripts/cyberglow.css">
     </head>
-    <body>
+    <body class="theme-blue">
       <div class="container">
         <div class="back-link">
           <a href="../../index.html">← Back to Dashboard</a>
@@ -76,9 +76,9 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${branchName} - ${timestamp} - Test Results</title>
-  <link rel="stylesheet" href="../../scripts/blue.css">
+  <link rel="stylesheet" href="../../scripts/cyberglow.css">
 </head>
-<body>
+<body class="theme-blue">
   <div class="container">
     <div class="back-link">
       <a href="../../index.html">← Back to Dashboard</a>
@@ -116,14 +116,14 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Playwright Reports Dashboard</title>
-  <link rel="stylesheet" href="./scripts/blue.css">
+  <link rel="stylesheet" href="./scripts/cyberglow.css">
 </head>
-<body>
+<body class="theme-blue">
   <div class="container">
     <h1>Playwright Reports Dashboard</h1>
     <div class="theme-switcher-wrapper">
       <div class="theme-selector">
-        <label for="theme-select">Theme:</label>
+        <label for="theme-select">Select Theme</label>
         <select id="theme-select">
           <option value="blue">Blue</option>
           <option value="gold">Gold</option>

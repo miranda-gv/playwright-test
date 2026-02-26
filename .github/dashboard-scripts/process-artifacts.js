@@ -40,7 +40,7 @@ async function main() {
   }
 
   // Copy static files
-    const styleFiles = ['blue.css', 'green.css', 'gold.css', 'purple.css'];
+    const styleFiles = ['cyberglow.css'];
     for (const style of styleFiles) {
       fs.copyFileSync(
         `.github/dashboard-scripts/styles/${style}`,

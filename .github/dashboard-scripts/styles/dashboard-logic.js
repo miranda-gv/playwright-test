@@ -65,25 +65,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // Make the function available globally for HTML onclick handlers
   window.toggleAccordion = toggleAccordion;
 
-  // Theme switching logic
+  // Theme switching logic using body class and CSS variables
   document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     if (!themeSelect) return;
-    const themeLink = document.querySelector('link[rel="stylesheet"][href*="scripts/"]');
-    if (!themeLink) return;
+
+    function setTheme(theme) {
+      document.body.classList.remove('theme-blue', 'theme-gold', 'theme-green', 'theme-purple');
+      document.body.classList.add(`theme-${theme}`);
+      localStorage.setItem('dashboard-theme', theme);
+    }
 
     themeSelect.addEventListener('change', function() {
-      const theme = themeSelect.value;
-      themeLink.href = `./scripts/${theme}.css`;
-      // Optionally, persist selection
-      localStorage.setItem('dashboard-theme', theme);
+      setTheme(themeSelect.value);
     });
 
-    // Restore theme from localStorage if available
-    const savedTheme = localStorage.getItem('dashboard-theme');
-    if (savedTheme && themeSelect.querySelector(`option[value="${savedTheme}"]`)) {
+    // Restore theme from localStorage if available, else default to blue
+    const savedTheme = localStorage.getItem('dashboard-theme') || 'blue';
+    if (themeSelect.querySelector(`option[value="${savedTheme}"]`)) {
       themeSelect.value = savedTheme;
-      themeLink.href = `./scripts/${savedTheme}.css`;
+      setTheme(savedTheme);
+    } else {
+      setTheme('blue');
     }
   });
   
