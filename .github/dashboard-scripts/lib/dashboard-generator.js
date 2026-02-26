@@ -1,6 +1,7 @@
 // Dashboard HTML and file generation helpers for process-artifacts.js
 const fs = require('fs');
-const { SIZE_LIMIT_MB } = require('./config');
+const { SIZE_LIMIT_MB, DASHBOARD_DESIGN } = require('./config');
+const DESIGNS = require('./dashboard-designs');
 
 /**
  * Gets emoji for run result
@@ -36,6 +37,7 @@ function getStatusClass(result) {
 }
 
 function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, runHtmlPath }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const placeholderHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -43,9 +45,9 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-      <link rel="stylesheet" href="../../scripts/cyberglow.css">
+      <link rel="stylesheet" href="../../scripts/${designConfig.css}">
     </head>
-    <body class="theme-blue">
+    <body class="theme-${designConfig.themes[0]}">
       <div class="container">
         <div class="back-link">
           <a href="../../index.html">← Back to Dashboard</a>
@@ -69,6 +71,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
 }
 
 function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, runHtmlPath }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -76,9 +79,9 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${branchName} - ${timestamp} - Test Results</title>
-  <link rel="stylesheet" href="../../scripts/cyberglow.css">
+  <link rel="stylesheet" href="../../scripts/${designConfig.css}">
 </head>
-<body class="theme-blue">
+<body class="theme-${designConfig.themes[0]}">
   <div class="container">
     <div class="back-link">
       <a href="../../index.html">← Back to Dashboard</a>
@@ -109,6 +112,8 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   fs.writeFileSync(runHtmlPath, html);
 }
 function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB, SHOW_EMOJIS, SHOW_STATUS_BORDERS }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
+  const themeList = JSON.stringify(designConfig.themes);
   let rootIndexHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -116,20 +121,15 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Playwright Reports Dashboard</title>
-  <link rel="stylesheet" href="./scripts/cyberglow.css">
+  <link rel="stylesheet" href="./scripts/${designConfig.css}">
 </head>
-<body class="theme-blue">
+<body class="theme-${designConfig.themes[0]}">
   <div class="container">
     <h1>Playwright Reports Dashboard</h1>
     <div class="theme-switcher-wrapper">
-      <div class="theme-selector">
+      <div class="theme-selector" data-themes='${themeList}'>
         <label for="theme-select">Select Theme</label>
-        <select id="theme-select">
-          <option value="blue">Blue</option>
-          <option value="gold">Gold</option>
-          <option value="green">Green</option>
-          <option value="purple">Purple</option>
-        </select>
+        <select id="theme-select"></select>
       </div>
     </div>
     <div class="dashboard-info">

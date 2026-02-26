@@ -70,23 +70,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     if (!themeSelect) return;
 
-    function setTheme(theme) {
-      document.body.classList.remove('theme-blue', 'theme-gold', 'theme-green', 'theme-purple');
-      document.body.classList.add(`theme-${theme}`);
-      localStorage.setItem('dashboard-theme', theme);
-    }
+      // Get available themes from data attribute
+      let themes = [];
+      const selectorWrapper = themeSelect.closest('.theme-selector');
+      if (selectorWrapper && selectorWrapper.dataset.themes) {
+        themes = JSON.parse(selectorWrapper.dataset.themes);
+      } else {
+        themes = ['blue', 'gold', 'green', 'purple']; // fallback
+      }
 
-    themeSelect.addEventListener('change', function() {
-      setTheme(themeSelect.value);
+      // Populate select
+      themeSelect.innerHTML = themes.map(
+        t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`
+      ).join('');
+
+      function setTheme(theme) {
+        themes.forEach(t => document.body.classList.remove(`theme-${t}`));
+        document.body.classList.add(`theme-${theme}`);
+        localStorage.setItem('dashboard-theme', theme);
+      }
+
+      themeSelect.addEventListener('change', function() {
+        setTheme(themeSelect.value);
+      });
+
+      // Restore theme from localStorage if available, else default to first theme
+      const savedTheme = localStorage.getItem('dashboard-theme') || themes[0];
+      if (themes.includes(savedTheme)) {
+        themeSelect.value = savedTheme;
+        setTheme(savedTheme);
+      } else {
+        setTheme(themes[0]);
+      }
     });
-
-    // Restore theme from localStorage if available, else default to blue
-    const savedTheme = localStorage.getItem('dashboard-theme') || 'blue';
-    if (themeSelect.querySelector(`option[value="${savedTheme}"]`)) {
-      themeSelect.value = savedTheme;
-      setTheme(savedTheme);
-    } else {
-      setTheme('blue');
-    }
-  });
   

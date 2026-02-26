@@ -1,5 +1,8 @@
-// Configuration and environment variable checks for process-artifacts.js
+// Dashboard design selection
+// Set to the key from dashboard-designs.js (e.g., 'cyberglow', 'neonwave')
+const DASHBOARD_DESIGN = 'cyberglow';
 
+// Configuration and environment variable checks for process-artifacts.js
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPOSITORY = process.env.GITHUB_REPOSITORY; // Format: "owner/repo"
 const ARTIFACT_NAME = 'report-folder';
@@ -16,7 +19,7 @@ const EXCLUDE_BRANCHES = []; // Add any branch names here that should be exclude
 // UI Configuration
 const SHOW_EMOJIS = false; // Set to true to show result emojis (✅, ❌, etc.)
 const SHOW_STATUS_BORDERS = true; // Set to true to show status-colored left borders
-
+  
 if (!GITHUB_TOKEN || !GITHUB_REPOSITORY) {
   console.error('Error: GITHUB_TOKEN and GITHUB_REPOSITORY environment variables are required.');
   process.exit(1);
@@ -36,4 +39,5 @@ module.exports = {
   EXCLUDE_BRANCHES,
   SHOW_EMOJIS,
   SHOW_STATUS_BORDERS,
+  DASHBOARD_DESIGN,
 };
