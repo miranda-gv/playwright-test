@@ -11,6 +11,11 @@ on:
     paths:
       - '.github/workflows/dashboard.yml'
   workflow_dispatch:
+    inputs:
+      design:
+        description: 'Dashboard design to use (cyberglow, cyberpunk, editorial, synthwave, artdeco, forest, glassmorphism)'
+        required: false
+        default: 'cyberglow'
   workflow_run:
     workflows: ['🎭 Run Playwright Tests']
     types:
@@ -68,6 +73,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          DASHBOARD_DESIGN: ${{ inputs.design || 'cyberglow' }}
 
       - name: 📤 Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3

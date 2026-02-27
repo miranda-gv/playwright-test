@@ -44,20 +44,18 @@ document.addEventListener('DOMContentLoaded', function() {
    */
   function toggleAccordion(element) {
     const content = element.nextElementSibling;
-    const isActive = content.classList.contains('active');
-    
-    // Close all active accordions
-    document.querySelectorAll('.accordion-content.active').forEach(item => {
+    const isOpen = content.classList.contains('open');
+    // Close all open accordions
+    document.querySelectorAll('.accordion-content.open').forEach(item => {
       if (item !== content) {
-        item.classList.remove('active');
+        item.classList.remove('open');
       }
     });
-    
     // Toggle the clicked accordion
-    if (isActive) {
-      content.classList.remove('active');
+    if (isOpen) {
+      content.classList.remove('open');
     } else {
-      content.classList.add('active');
+      content.classList.add('open');
     }
   }
   

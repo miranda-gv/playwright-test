@@ -1,6 +1,8 @@
 // Dashboard design selection
 // Set to the key from dashboard-designs.js (e.g., 'cyberglow', 'neonwave')
-const DASHBOARD_DESIGN = 'cyberglow';
+// Can be overridden by the DASHBOARD_DESIGN environment variable
+// cyberglow, cyberpunk, editorial, synthwave, artdeco, forest, glassmorphism etc.
+const DASHBOARD_DESIGN = process.env.DASHBOARD_DESIGN || 'artdeco'; 
 
 // Configuration and environment variable checks for process-artifacts.js
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -9,7 +11,7 @@ const ARTIFACT_NAME = 'report-folder';
 const SIZE_LIMIT_MB = 50;
 const SIZE_LIMIT_BYTES = SIZE_LIMIT_MB * 1024 * 1024; // 50MB in bytes
 const DAYS_TO_KEEP = 30; // Keep artifacts from last 30 days for all branches
-const NUMBER_OF_ARTIFACTS_TO_SHOW = 5; // How many most recent artifacts per branch, regardless of age to be kept on the dashboard
+const NUMBER_OF_ARTIFACTS_TO_SHOW = 2; // How many most recent artifacts per branch, regardless of age to be kept on the dashboard
 const SPECIAL_BRANCHES = ['main', 'test', 'dev'];
 const MAX_CONCURRENT_DOWNLOADS = 8; // Limit concurrent downloads to avoid overwhelming the API
 const MAX_CONCURRENT_EXTRACTIONS = 4; // Limit concurrent extractions to avoid I/O bottleneck
