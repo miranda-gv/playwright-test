@@ -13,9 +13,18 @@ on:
   workflow_dispatch:
     inputs:
       design:
-        description: 'Dashboard design to use (cyberglow, cyberpunk, editorial, synthwave, artdeco, forest, glassmorphism)'
-        required: false
+        description: 'Select the dashboard design'
+        required: true
         default: 'cyberglow'
+        type: choice
+        options:
+          - cyberglow
+          - cyberpunk
+          - editorial
+          - synthwave
+          - artdeco
+          - forest
+          - glassmorphism
   workflow_run:
     workflows: ['🎭 Run Playwright Tests']
     types:
