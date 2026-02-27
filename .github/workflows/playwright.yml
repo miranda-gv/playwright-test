@@ -9,9 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       report_type:
-        description: 'Report type: monocart or playwright'
-        required: false
+        description: 'Select a Report type'
+        required: true
         default: 'monocart'
+        type: choice
+        options:
+          - monocart
+          - playwright-report
 
 permissions:
   contents: write

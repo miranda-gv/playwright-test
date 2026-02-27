@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       design:
-        description: 'Select the dashboard design'
+        description: 'Select a dashboard design'
         required: true
         default: 'cyberglow'
         type: choice
