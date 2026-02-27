@@ -11,7 +11,7 @@ on:
       report_type:
         description: 'Select a Report type'
         required: true
-        default: 'monocart'
+        default: 'playwright-report'
         type: choice
         options:
           - monocart
