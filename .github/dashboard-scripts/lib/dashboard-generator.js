@@ -115,10 +115,8 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
   const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const themeList = JSON.stringify(designConfig.themes);
   let containerClass = 'container';
-  let h1Class = '';
   if (DASHBOARD_DESIGN === 'cyberpunk') {
     containerClass += ' surface cyberpunk-shadow';
-    h1Class = 'neon-glow';
   }
   let fontLinks = '';
   if (DASHBOARD_DESIGN === 'cyberglow') {
@@ -153,16 +151,66 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
         <div class="deco-line"><span>Test Automation</span></div>
         <h1><strong>Playwright Reports</strong>Dashboard</h1>
         <div class="deco-ornament">◆ ◇ ◆</div>
+        <div class="theme-switcher-wrapper">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
       </div>
     ` : DASHBOARD_DESIGN === 'forest' ? `
       <div class="header">
         <p class="header-tag">// Automation Suite</p>
         <h1>Playwright Reports<br><em>Dashboard</em></h1>
         <div class="header-line"></div>
+        <div class="theme-switcher-wrapper">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
       </div>
     ` : DASHBOARD_DESIGN === 'glassmorphism' ? `
-      <h1>Playwright Reports Dashboard</h1>
-    ` : `<h1${h1Class ? ` class="${h1Class}"` : ''}>Playwright Reports Dashboard</h1>`}
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'cyberpunk' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'editorial' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'synthwave' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : '<h1>Playwright Reports Dashboard</h1>'}
     ${DASHBOARD_DESIGN === 'cyberglow' ? `
       <div class="dashboard-info dashboard-info-flex">
         <div class="dashboard-info-main">
