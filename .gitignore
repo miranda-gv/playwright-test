@@ -13,3 +13,4 @@ artifacts_data/
 .github/workflows/legacy/
 legacy-scripts/
 *.env
+designs/
