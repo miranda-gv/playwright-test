@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "process-artifacts": "node .github/dashboard-scripts/process-artifacts.js",
+    "process-artifacts": "node dashboard/process-artifacts.js",
     "test": "npx playwright test",
     "lint": "eslint .",
     "format": "prettier --write ."

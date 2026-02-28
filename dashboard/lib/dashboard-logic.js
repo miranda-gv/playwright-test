@@ -14,6 +14,7 @@
   
   /**
    * Update the total artifacts count in the HTML
+   * This function checks for the presence of the 'total-artifacts' element and updates its text content with the value of 'window.totalArtifacts' if it exists. This allows the dashboard to display the total number of artifacts processed.
    */
   function updateTotalArtifacts() {
     const totalArtifactsElement = document.getElementById('total-artifacts');
@@ -30,7 +31,7 @@
     // Document is still loading, wait for it to be ready
     document.addEventListener('DOMContentLoaded', updateTotalArtifacts);
   }  
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
     const totalArtifactsElement = document.getElementById('total-artifacts');
     if (totalArtifactsElement && window.totalArtifacts) {
       totalArtifactsElement.textContent = window.totalArtifacts;
@@ -58,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
       content.classList.add('open');
     }
   }
-  
 
   // Make the function available globally for HTML onclick handlers
   window.toggleAccordion = toggleAccordion;

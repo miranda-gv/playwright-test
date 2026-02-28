@@ -33,7 +33,7 @@ This project automates the collection, processing, and dashboarding of Playwrigh
    ```sh
    npm run process-artifacts
    # or
-   node .github/dashboard-scripts/process-artifacts.js
+   node /dashboard/process-artifacts.js
    ```
    - This will process all recent workflow artifacts, extract them, and generate a dashboard in the `site/` folder.
    - It also creates `artifacts_data/artifacts.json`, a summary file used by other scripts and the dashboard.
@@ -45,7 +45,7 @@ This project automates the collection, processing, and dashboarding of Playwrigh
 
 
 ## Configuration
-- Most settings (artifact name, size limits, branches, etc.) can be adjusted in `.github/dashboard-scripts/lib/config.js`.
+- Most settings (artifact name, size limits, branches, etc.) can be adjusted in `/dashboard/lib/config.js`.
 - Only `GITHUB_TOKEN` and `GITHUB_REPOSITORY` are required in `.env` for most users.
 
 
@@ -55,14 +55,14 @@ After processing, a summary file is created at `artifacts_data/artifacts.json`. 
 - The dashboard to quickly display available runs and their status.
 - The GitHub Actions workflow summary step, which runs:
    ```sh
-   node .github/dashboard-scripts/lib/step-summary-url.js "artifacts_data/artifacts.json" "<DEPLOYMENT_URL>"
+   node /dashboard/lib/step-summary-url.js "artifacts_data/artifacts.json" "<DEPLOYMENT_URL>"
    ```
    This script finds the latest artifact and adds a link to the workflow summary.
 
 ## Plug-and-Play Usage
 
 You can reuse this setup in any repository by copying:
-- The `.github/dashboard-scripts/` folder (including all scripts and styles)
+- The `dashboard/` folder (including all scripts and styles)
 - The workflow YAML files
 - The `config/` folder and `.env` setup
 - The `package.json` scripts and dependencies

@@ -24,6 +24,10 @@ const stats = {
   duration: 0,
 };
 
+/**
+ * @param {*} suites - The suites array from the Playwright report, which may contain nested suites and specs
+ * This function recursively traverses the suites and their nested suites/specs to accumulate test results. It updates the stats object with the count of passed, failed, and skipped tests, as well as the total duration of all tests.
+ */
 function parseSuites(suites) {
   for (const suite of suites) {
     if (suite.suites) {

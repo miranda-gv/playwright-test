@@ -3,33 +3,6 @@ const fs = require('fs');
 const { SIZE_LIMIT_MB, DASHBOARD_DESIGN } = require('./config');
 const DESIGNS = require('./dashboard-designs');
 
-/**
- * Gets emoji for run result
- * @param {string} result - Run result status
- * @returns {string} Emoji
- */
-function getResultEmoji(result) {
-  const emojiMap = {
-    success: '✅',
-    failure: '❌',
-    timed_out: '⚠️',
-    cancelled: '🚫',
-    startup_failure: '❌',
-  };
-  // Handle common GitHub Actions conclusion states
-  if (result === 'succeeded') return '✅';
-  if (result === 'failed') return '❌';
-  if (result === 'partiallySucceeded') return '⚠️';
-  if (result === 'canceled') return '🚫';
-  
-  return emojiMap[result] || '❓';
-}
-
-/**
- * Gets CSS class for run status
- * @param {string} result - Run result status
- * @returns {string} CSS class name
- */
 function getStatusClass(result) {
   if (result === 'success' || result === 'succeeded') return 'status-success';
   if (result === 'failure' || result === 'failed' || result === 'startup_failure') return 'status-fail';
@@ -45,7 +18,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-      <link rel="stylesheet" href="../../scripts/${designConfig.css}">
+      <link rel="stylesheet" href="../../themes/${designConfig.css}">
     </head>
     <body class="theme-${designConfig.themes[0]}">
       <div class="container">
@@ -64,9 +37,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
     </body>
     </html>
   `;
-  if (!runHtmlPath) {
-    throw new Error('runHtmlPath is undefined for placeholder HTML');
-  }
+  if (!runHtmlPath) throw new Error('runHtmlPath is undefined for placeholder HTML');
   fs.writeFileSync(runHtmlPath, placeholderHtml);
 }
 
@@ -79,7 +50,7 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${branchName} - ${timestamp} - Test Results</title>
-  <link rel="stylesheet" href="../../scripts/${designConfig.css}">
+  <link rel="stylesheet" href="../../themes/${designConfig.css}">
 </head>
 <body class="theme-${designConfig.themes[0]}">
   <div class="container">
@@ -106,18 +77,15 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
 </body>
 </html>
 `;
-  if (!runHtmlPath) {
-    throw new Error('runHtmlPath is undefined for run HTML');
-  }
+  if (!runHtmlPath) throw new Error('runHtmlPath is undefined for run HTML');
   fs.writeFileSync(runHtmlPath, html);
 }
-function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB, SHOW_EMOJIS, SHOW_STATUS_BORDERS }) {
+
+function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB, SHOW_STATUS_BORDERS }) {
   const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const themeList = JSON.stringify(designConfig.themes);
   let containerClass = 'container';
-  if (DASHBOARD_DESIGN === 'cyberpunk') {
-    containerClass += ' surface cyberpunk-shadow';
-  }
+  if (DASHBOARD_DESIGN === 'cyberpunk') containerClass += ' surface cyberpunk-shadow';
   let fontLinks = '';
   if (DASHBOARD_DESIGN === 'cyberglow') {
     fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;700&family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">';
@@ -141,11 +109,12 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Playwright Reports Dashboard</title>${fontLinks}
-  <link rel="stylesheet" href="./scripts/${designConfig.css}">
-  <script src="./scripts/dashboard-logic.js" defer></script>
+  <link rel="stylesheet" href="./themes/${designConfig.css}">
+  <script src="./dashboard/dashboard-logic.js" defer></script>
 </head>
 <body class="theme-${designConfig.themes[0]}">
   <div class="${containerClass}">
+    <!-- header and info blocks (unchanged) -->
     ${DASHBOARD_DESIGN === 'artdeco' ? `
       <div class="header">
         <div class="deco-line"><span>Test Automation</span></div>
@@ -254,19 +223,14 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
     `}
     <div id="accordions">
 `;
-
   // Sort branches (main first, then alphabetically)
   const sortedBranches = [...processedData.keys()].sort((a, b) => {
     if (a === 'main') return -1;
     if (b === 'main') return 1;
     return a.localeCompare(b);
   });
-
   for (const branchName of sortedBranches) {
-    const artifacts = processedData
-      .get(branchName)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
+    const artifacts = processedData.get(branchName).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     rootIndexHtml += `
       <div class="accordion">
         <div class="accordion-header" onclick="window.toggleAccordion(this)">
@@ -275,27 +239,19 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
         </div>
         <div class="accordion-content">
     `;
-
     for (const artifact of artifacts) {
       const workflowUrl = `https://github.com/${GITHUB_REPOSITORY}/actions/runs/${artifact.workflow_run.id}`;
       const runNumber = extractRunNumber(workflowUrl);
       const formattedDate = formatDateInEST(artifact.created_at);
-      const timestamp = new Date(artifact.created_at)
-        .toISOString()
-        .replace(/:/g, '-')
-        .replace(/\..+/, '');
-      // New: link to site/[branch]/[run-date]/index.html
+      const timestamp = new Date(artifact.created_at).toISOString().replace(/:/g, '-').replace(/\..+/, '');
       const reportUrl = `./${branchName}/${timestamp}/index.html`;
       const conclusion = artifact.run_conclusion || 'unknown';
-      const emoji = getResultEmoji(conclusion);
       const statusClass = SHOW_STATUS_BORDERS ? getStatusClass(conclusion) : '';
-
       if (artifact.is_placeholder) {
         rootIndexHtml += `
           <div class="run-item placeholder ${statusClass}">
             <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
-              ${SHOW_EMOJIS ? `<span class="run-result" title="${conclusion}">${emoji}</span>` : ''}
               <span class="placeholder-notice">Artifact > ${SIZE_LIMIT_MB}MB</span>
             </div>
             <div class="run-links">
@@ -309,7 +265,6 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
           <div class="run-item ${statusClass}">
             <div class="run-details-left">
               <span class="run-id">#${runNumber} (${formattedDate})</span>
-              ${SHOW_EMOJIS ? `<span class="run-result" title="${conclusion}">${emoji}</span>` : ''}
             </div>
             <div class="run-links">
               <a href="${reportUrl}" target="_blank" class="report-link">View Report</a>
@@ -319,14 +274,12 @@ function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, fo
         `;
       }
     }
-
-    rootIndexHtml += '</div></div>'; // Close accordion-content and accordion
+    rootIndexHtml += '</div></div>';
   }
-
   rootIndexHtml += `
         </div>
       </div>
-      <script src="./scripts/dashboard-logic.js"></script>
+      <script src="./dashboard/dashboard-logic.js"></script>
     </body>
     </html>
   `;
@@ -337,6 +290,5 @@ module.exports = {
   writePlaceholderHtml,
   writeTimestampIndexHtml,
   generateRootDashboardHtml,
-  getResultEmoji,
   getStatusClass,
 };

@@ -2,6 +2,13 @@
 const { execSync } = require('child_process');
 const { GITHUB_REPOSITORY } = require('./config');
 
+/**
+ * Executes a shell command and returns the output as a string.
+ * @param {string} command - The command to execute.
+ * @param {object} options - Optional execSync options.
+ * @returns {string} - The stdout from the command.
+ * @throws Will throw an error if the command fails or if JSON parsing fails.
+ */
 function execCommand(command, options = {}) {
   try {
     return execSync(command, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, ...options });
@@ -12,6 +19,12 @@ function execCommand(command, options = {}) {
   }
 }
 
+/**
+ * Fetches data from the GitHub API using the gh CLI, handling pagination and parsing the JSON response.
+ * @param {string} endpoint - The GitHub API endpoint to fetch data from.
+ * @returns {Promise<any>} - The parsed JSON response from the API.
+ * @throws Will throw an error if the command fails or if JSON parsing fails.
+ */
 async function fetchFromGitHubAPI(endpoint) {
   console.log(`Fetching from GitHub API: ${endpoint}`);
   const command = `gh api --paginate "${endpoint}" | jq -s '.'`;
@@ -26,6 +39,11 @@ async function fetchFromGitHubAPI(endpoint) {
   }
 }
 
+/**
+ *  Fetches all active branch names from the GitHub repository. Handles pagination and returns a Set of branch names.  
+ * @returns {Promise<Set<string>>} - A set of active branch names.
+ * @throws Will throw an error if the API request fails or if JSON parsing fails.
+ */
 async function getActiveBranches() {
   console.log('Fetching active branches...');
   const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/branches`);
@@ -45,6 +63,11 @@ async function getActiveBranches() {
   return new Set(branchNames);
 }
 
+/**
+ * Fetches all artifacts for the GitHub repository. Handles pagination and returns an array of artifacts.
+ * @returns {Promise<Array>} - An array of artifacts.
+ * @throws Will throw an error if the API request fails or if JSON parsing fails.
+ */
 async function getAllArtifacts() {
   console.log('Fetching all artifacts...');
   const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/actions/artifacts`);
@@ -62,6 +85,10 @@ async function getAllArtifacts() {
   return allArtifacts;
 }
 
+/** Fetches all workflow runs for the GitHub repository. Handles pagination and returns an array of workflow runs.
+ * @returns {Promise<Array>} - An array of workflow runs.
+ * @throws Will throw an error if the API request fails or if JSON parsing fails.
+ */
 async function getAllRuns() {
   console.log('Fetching all workflow runs...');
   const response = await fetchFromGitHubAPI(`repos/${GITHUB_REPOSITORY}/actions/runs`);
