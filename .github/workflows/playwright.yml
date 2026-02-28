@@ -11,11 +11,11 @@ on:
       report_type:
         description: 'Select a Report type'
         required: true
-        default: 'playwright-report'
+        default: 'playwright'
         type: choice
         options:
           - monocart
-          - playwright-report
+          - playwright
 
 permissions:
   contents: write
