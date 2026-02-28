@@ -83,7 +83,6 @@ jobs:
           retention-days: 30
 
       - name: 🔗 Add Dashboard URL
-        if: always()
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 The new report will be available here after a few minutes: https://miranda-gv.github.io/playwright-test/" >> $GITHUB_STEP_SUMMARY
