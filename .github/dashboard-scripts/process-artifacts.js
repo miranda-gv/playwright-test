@@ -39,15 +39,19 @@ async function main() {
     fs.mkdirSync(artifactsDataDir, { recursive: true });
   }
 
-  // Copy static files
-    const styleFiles = ['blue.css', 'green.css', 'gold.css', 'purple.css'];
-    for (const style of styleFiles) {
-      fs.copyFileSync(
-        `.github/dashboard-scripts/styles/${style}`,
-        path.join(scriptsDir, style)
-      );
-    }
-    fs.copyFileSync('.github/dashboard-scripts/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
+
+  // Copy static files (CSS for selected design)
+  const { DASHBOARD_DESIGN } = require('./lib/config');
+  const designConfig = require('./lib/dashboard-designs')[DASHBOARD_DESIGN];
+  if (!designConfig || !designConfig.css) {
+    throw new Error(`Design '${DASHBOARD_DESIGN}' is not defined in dashboard-designs.js`);
+  }
+  const cssFile = designConfig.css;
+  fs.copyFileSync(
+    `.github/dashboard-scripts/styles/${cssFile}`,
+    path.join(scriptsDir, cssFile)
+  );
+  fs.copyFileSync('.github/dashboard-scripts/styles/dashboard-logic.js', path.join(scriptsDir, 'dashboard-logic.js'));
 
   const stats = { totalBranches: 0, totalArtifacts: 0, totalFiles: 0, processingErrors: 0 };
 

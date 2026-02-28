@@ -4,14 +4,18 @@
 name: 🎭 Run Playwright Tests
 
 on:
-  push:
-    branches: '*'
+  # push:
+  #   branches: '*'
   workflow_dispatch:
     inputs:
       report_type:
-        description: 'Report type: monocart or playwright'
-        required: false
-        default: 'monocart'
+        description: 'Select a Report type'
+        required: true
+        default: 'playwright-report'
+        type: choice
+        options:
+          - monocart
+          - playwright-report
 
 permissions:
   contents: write
@@ -26,7 +30,7 @@ concurrency:
 jobs:
   test:
     name: 🧪 Run Playwright Tests
-    # Use the official Playwright container to save 1-2 mins on browser/deps installation
+    # Use the official Playwright container to save time on setup and ensure consistency with local development
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble # Match @playwright/test version from package.json

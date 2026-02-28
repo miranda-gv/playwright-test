@@ -1,6 +1,7 @@
 // Dashboard HTML and file generation helpers for process-artifacts.js
 const fs = require('fs');
-const { SIZE_LIMIT_MB } = require('./config');
+const { SIZE_LIMIT_MB, DASHBOARD_DESIGN } = require('./config');
+const DESIGNS = require('./dashboard-designs');
 
 /**
  * Gets emoji for run result
@@ -36,6 +37,7 @@ function getStatusClass(result) {
 }
 
 function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUrl, runHtmlPath }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const placeholderHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -43,9 +45,9 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Artifact Too Large - ${branchName} #${runNumber}</title>
-      <link rel="stylesheet" href="../../scripts/blue.css">
+      <link rel="stylesheet" href="../../scripts/${designConfig.css}">
     </head>
-    <body>
+    <body class="theme-${designConfig.themes[0]}">
       <div class="container">
         <div class="back-link">
           <a href="../../index.html">← Back to Dashboard</a>
@@ -69,6 +71,7 @@ function writePlaceholderHtml({ branchName, runNumber, formattedDate, workflowUr
 }
 
 function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFiles, runHtmlPath }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -76,9 +79,9 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${branchName} - ${timestamp} - Test Results</title>
-  <link rel="stylesheet" href="../../scripts/blue.css">
+  <link rel="stylesheet" href="../../scripts/${designConfig.css}">
 </head>
-<body>
+<body class="theme-${designConfig.themes[0]}">
   <div class="container">
     <div class="back-link">
       <a href="../../index.html">← Back to Dashboard</a>
@@ -109,35 +112,146 @@ function writeTimestampIndexHtml({ branchName, timestamp, metadata, extractedFil
   fs.writeFileSync(runHtmlPath, html);
 }
 function generateRootDashboardHtml({ GITHUB_REPOSITORY, stats, processedData, formatDateInEST, extractRunNumber, SIZE_LIMIT_MB, SHOW_EMOJIS, SHOW_STATUS_BORDERS }) {
+  const designConfig = DESIGNS[DASHBOARD_DESIGN];
+  const themeList = JSON.stringify(designConfig.themes);
+  let containerClass = 'container';
+  if (DASHBOARD_DESIGN === 'cyberpunk') {
+    containerClass += ' surface cyberpunk-shadow';
+  }
+  let fontLinks = '';
+  if (DASHBOARD_DESIGN === 'cyberglow') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Inter:wght@300;400;500;700&family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'cyberpunk') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css?family=Orbitron:700,900&display=swap" rel="stylesheet">\n  <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'editorial') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'synthwave') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'artdeco') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'forest') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">';
+  } else if (DASHBOARD_DESIGN === 'glassmorphism') {
+    fontLinks = '\n  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">';
+  }
   let rootIndexHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playwright Reports Dashboard</title>
-  <link rel="stylesheet" href="./scripts/blue.css">
+  <title>Playwright Reports Dashboard</title>${fontLinks}
+  <link rel="stylesheet" href="./scripts/${designConfig.css}">
+  <script src="./scripts/dashboard-logic.js" defer></script>
 </head>
-<body>
-  <div class="container">
-    <h1>Playwright Reports Dashboard</h1>
-    <div class="theme-switcher-wrapper">
-      <div class="theme-selector">
-        <label for="theme-select">Theme:</label>
-        <select id="theme-select">
-          <option value="blue">Blue</option>
-          <option value="gold">Gold</option>
-          <option value="green">Green</option>
-          <option value="purple">Purple</option>
-        </select>
+<body class="theme-${designConfig.themes[0]}">
+  <div class="${containerClass}">
+    ${DASHBOARD_DESIGN === 'artdeco' ? `
+      <div class="header">
+        <div class="deco-line"><span>Test Automation</span></div>
+        <h1><strong>Playwright Reports</strong>Dashboard</h1>
+        <div class="deco-ornament">◆ ◇ ◆</div>
+        <div class="theme-switcher-wrapper">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
       </div>
-    </div>
-    <div class="dashboard-info">
-      <p><strong>Repository:</strong> ${GITHUB_REPOSITORY}</p>
-      <p><strong>Total Branches:</strong> ${stats.totalBranches}</p>
-      <p><strong>Total Artifacts:</strong> <span id="total-artifacts">${stats.totalArtifacts}</span></p>
-      <p class="last-updated">Last updated: ${formatDateInEST(new Date())}</p>
-    </div>
+    ` : DASHBOARD_DESIGN === 'forest' ? `
+      <div class="header">
+        <p class="header-tag">// Automation Suite</p>
+        <h1>Playwright Reports<br><em>Dashboard</em></h1>
+        <div class="header-line"></div>
+        <div class="theme-switcher-wrapper">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'glassmorphism' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'cyberpunk' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'editorial' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'synthwave' ? `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">Playwright Reports Dashboard</h1>
+        <div class="theme-switcher-wrapper" style="margin-bottom: 0;">
+          <span class="theme-selector" data-themes='${themeList}'>
+            <label for="theme-select">Theme</label>
+            <select id="theme-select"></select>
+          </span>
+        </div>
+      </div>
+    ` : '<h1>Playwright Reports Dashboard</h1>'}
+    ${DASHBOARD_DESIGN === 'cyberglow' ? `
+      <div class="dashboard-info dashboard-info-flex">
+        <div class="dashboard-info-main">
+          <div class="dashboard-info-lines">
+            <p><strong>Repository:</strong> <span>${GITHUB_REPOSITORY}</span></p>
+            <p><strong>Total Branches:</strong> <span>${stats.totalBranches}</span></p>
+            <p><strong>Total Artifacts:</strong> <span id="total-artifacts">${stats.totalArtifacts}</span></p>
+            <div class="dashboard-info-row">
+              <span class="last-updated">Last updated: ${formatDateInEST(new Date())}</span>
+              <span class="dashboard-info-theme-inline">
+                <span class="theme-selector" data-themes='${themeList}'>
+                  <label for="theme-select">Theme</label>
+                  <select id="theme-select"></select>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    ` : DASHBOARD_DESIGN === 'glassmorphism' ? `
+      <div class="dashboard-info">
+        <p><strong>Repository</strong>${GITHUB_REPOSITORY}</p>
+        <p><strong>Total Branches</strong>${stats.totalBranches}</p>
+        <p><strong>Total Artifacts</strong><span id="total-artifacts">${stats.totalArtifacts}</span></p>
+        <p class="last-updated">Last updated: ${formatDateInEST(new Date())}</p>
+      </div>
+    ` : DASHBOARD_DESIGN === 'forest' ? `
+      <div class="dashboard-info">
+        <div class="info-block"><div class="key">Repository</div><div class="val">${GITHUB_REPOSITORY}</div></div>
+        <div class="info-block"><div class="key">Branches</div><div class="val">${stats.totalBranches}</div></div>
+        <div class="info-block"><div class="key">Artifacts</div><div class="val" id="total-artifacts">${stats.totalArtifacts}</div></div>
+        <div class="last-updated">Last updated: ${formatDateInEST(new Date())}</div>
+      </div>
+    ` : `
+      <div class="dashboard-info">
+        <p><strong>Repository:</strong> ${GITHUB_REPOSITORY}</p>
+        <p><strong>Total Branches:</strong> ${stats.totalBranches}</p>
+        <p><strong>Total Artifacts:</strong> <span id="total-artifacts">${stats.totalArtifacts}</span></p>
+        <p class="last-updated">Last updated: ${formatDateInEST(new Date())}</p>
+      </div>
+    `}
     <div id="accordions">
 `;
 

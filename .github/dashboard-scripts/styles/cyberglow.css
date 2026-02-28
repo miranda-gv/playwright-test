@@ -1,0 +1,83 @@
+/* Cyberglow Dashboard Theme (cyberglow.css) */
+body.theme-blue {
+  --bg-color: #121212; --card-bg: #1e1e1e; --card-hover-bg: #2d2d2d;
+  --text-color: #e0e0e0; --accent-color: #4f92ff; --border-color: #333333; --header-color: #fff;
+  --font-main: 'Space Grotesk', sans-serif;
+}
+body.theme-green {
+  --bg-color: #0d110d; --card-bg: #161b16; --card-hover-bg: #212621;
+  --text-color: #c9d1c9; --accent-color: #4de879; --border-color: #303d30; --header-color: #f0fcf0;
+  --font-main: 'Inter', sans-serif;
+}
+body.theme-purple {
+  --bg-color: #110d11; --card-bg: #1b161b; --card-hover-bg: #262126;
+  --text-color: #d1c9d1; --accent-color: #a658ff; --border-color: #3d303d; --header-color: #fcf0fc;
+  --font-main: 'DM Sans', sans-serif;
+}
+body.theme-gold {
+  --bg-color: #110d0d; --card-bg: #1b1616; --card-hover-bg: #262121;
+  --text-color: #d1c9c9; --accent-color: #a48c05; --border-color: #3d3030; --header-color: #fcf0f0;
+  --font-main: 'Outfit', sans-serif;
+}
+
+body {
+  font-family: var(--font-main), -apple-system, sans-serif;
+  margin: 0; background-color: var(--bg-color); color: var(--text-color);
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+h1, h2, h3 { font-family: var(--font-main); color: var(--header-color); text-align: center; font-weight: 600; letter-spacing: -0.025em; }
+a { color: var(--accent-color); text-decoration: none; transition: 0.2s; }
+a:hover { filter: brightness(1.2); text-decoration: underline; }
+.back-link { margin-bottom: 1.5rem; text-align: center; }
+
+/* Dashboard Header */
+.dashboard-info-flex {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  background: #252525; border: 1px solid var(--border-color); border-radius: 6px;
+  padding: 1rem; margin-bottom: 1.5rem;
+}
+.dashboard-info-lines p { margin: 0.1rem 0; font-size: 1rem; text-align: center; }
+.dashboard-info-lines strong { font-weight: 600; color: #ccc; margin-right: 0.2em; }
+.dashboard-info-row {
+  display: flex; align-items: center; justify-content: center; gap: 1.5rem;
+  margin-top: 0.5rem; font-size: 0.85rem; width: 100%; border-top: 1px solid var(--border-color); padding-top: 0.5rem;
+  color: #888;
+}
+.theme-selector { display: flex; align-items: center; gap: 0.5rem; }
+.theme-selector label { color: #8b7aa8; font-weight: 500; font-size: 0.8rem; }
+.theme-selector select {
+  background: rgba(255,255,255,0.05); color: var(--accent-color); border: 1px solid var(--border-color);
+  padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: var(--font-main);
+}
+
+/* Accordion & Items */
+.accordion { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; background: var(--card-bg); }
+.accordion-header {
+  padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border-color); transition: 0.2s;
+}
+.accordion-header:hover { background: var(--card-hover-bg); }
+.accordion-header h3 { margin: 0; color: var(--accent-color); font-size: 1.1rem; }
+.count { background: var(--accent-color); color: #fff; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; }
+.accordion-content { display: none; padding: 0.5rem; }
+.accordion-content.open { display: block; }
+
+.run-item {
+  padding: 0.8rem; margin: 0.4rem 0; background: #252525; border-radius: 4px;
+  display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
+}
+.run-item:hover { background: #2a2a2a; }
+.status-success { border-left: 4px solid #4caf50; }
+.status-fail { border-left: 4px solid #f44336; }
+.status-other { border-left: 4px solid #ff9800; }
+.run-details-left { display: flex; align-items: center; gap: 10px; }
+.run-id { font-weight: 500; font-size: 0.9rem; }
+.run-links { display: flex; gap: 1rem; }
+.workflow-link, .report-link { font-size: 0.9rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+.report-link { color: #4caf50; }
+
+/* File List */
+.file-list ul { list-style: none; padding: 0; }
+.file-list a { display: block; padding: 0.8rem; background: #252525; border-radius: 4px; margin-bottom: 0.4rem; }
+.file-list a:hover { color: var(--accent-color); background: #2a2a2a; }

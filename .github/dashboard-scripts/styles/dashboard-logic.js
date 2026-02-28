@@ -44,20 +44,18 @@ document.addEventListener('DOMContentLoaded', function() {
    */
   function toggleAccordion(element) {
     const content = element.nextElementSibling;
-    const isActive = content.classList.contains('active');
-    
-    // Close all active accordions
-    document.querySelectorAll('.accordion-content.active').forEach(item => {
+    const isOpen = content.classList.contains('open');
+    // Close all open accordions
+    document.querySelectorAll('.accordion-content.open').forEach(item => {
       if (item !== content) {
-        item.classList.remove('active');
+        item.classList.remove('open');
       }
     });
-    
     // Toggle the clicked accordion
-    if (isActive) {
-      content.classList.remove('active');
+    if (isOpen) {
+      content.classList.remove('open');
     } else {
-      content.classList.add('active');
+      content.classList.add('open');
     }
   }
   
@@ -65,25 +63,42 @@ document.addEventListener('DOMContentLoaded', function() {
   // Make the function available globally for HTML onclick handlers
   window.toggleAccordion = toggleAccordion;
 
-  // Theme switching logic
+  // Theme switching logic using body class and CSS variables
   document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     if (!themeSelect) return;
-    const themeLink = document.querySelector('link[rel="stylesheet"][href*="scripts/"]');
-    if (!themeLink) return;
 
-    themeSelect.addEventListener('change', function() {
-      const theme = themeSelect.value;
-      themeLink.href = `./scripts/${theme}.css`;
-      // Optionally, persist selection
-      localStorage.setItem('dashboard-theme', theme);
+      // Get available themes from data attribute
+      let themes = [];
+      const selectorWrapper = themeSelect.closest('.theme-selector');
+      if (selectorWrapper && selectorWrapper.dataset.themes) {
+        themes = JSON.parse(selectorWrapper.dataset.themes);
+      } else {
+        themes = ['blue', 'gold', 'green', 'purple']; // fallback
+      }
+
+      // Populate select
+      themeSelect.innerHTML = themes.map(
+        t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`
+      ).join('');
+
+      function setTheme(theme) {
+        themes.forEach(t => document.body.classList.remove(`theme-${t}`));
+        document.body.classList.add(`theme-${theme}`);
+        localStorage.setItem('dashboard-theme', theme);
+      }
+
+      themeSelect.addEventListener('change', function() {
+        setTheme(themeSelect.value);
+      });
+
+      // Restore theme from localStorage if available, else default to first theme
+      const savedTheme = localStorage.getItem('dashboard-theme') || themes[0];
+      if (themes.includes(savedTheme)) {
+        themeSelect.value = savedTheme;
+        setTheme(savedTheme);
+      } else {
+        setTheme(themes[0]);
+      }
     });
-
-    // Restore theme from localStorage if available
-    const savedTheme = localStorage.getItem('dashboard-theme');
-    if (savedTheme && themeSelect.querySelector(`option[value="${savedTheme}"]`)) {
-      themeSelect.value = savedTheme;
-      themeLink.href = `./scripts/${savedTheme}.css`;
-    }
-  });
   
