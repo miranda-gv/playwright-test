@@ -44,7 +44,7 @@ This project is a comprehensive end-to-end testing and reporting solution. It co
 - **CI (GitHub Actions):** The `Generate Report Dashboard` workflow includes a `design` dropdown in the `workflow_dispatch` trigger for manual runs. It defaults to `cyberglow`.
 
 ### Customizing Styles (e.g., Cyberglow)
-- **CSS:** Styles are kept lean and consolidated in the `themes/` directory.
+- **CSS:** Styles are kept lean and consolidated in the `dashboard/themes/` directory.
 - **Fonts:** Most designs use theme-specific fonts (e.g., `Space Grotesk`, `Inter`, `DM Sans`, `Outfit`). These are loaded via Google Fonts in `dashboard-generator.js`.
 - **Colors:** Theme variables (e.g., `--accent-color`, `--bg-color`) are defined in the CSS files and toggled via body classes (e.g., `.theme-purple`).
 
@@ -61,7 +61,7 @@ This project is a comprehensive end-to-end testing and reporting solution. It co
 
 - **New Tests:** Place in `./tests/playwright/`. Follow the naming convention `*.spec.ts`.
 - **Dashboard Modifications:** 
-    - UI changes should be made in `dashboard/lib/dashboard-designs.js` or the corresponding CSS in `/dashboard/themes/`.
+    - UI changes should be made in `dashboard/lib/dashboard-designs.js` or the corresponding CSS in `dashboard/themes/`.
     - Logic changes should be in the relevant `lib/` utility.
 - **Design Deployment:** When updating a design, ensure the theme selector (`#theme-select`) is correctly integrated into the HTML template in `lib/dashboard-generator.js`.
 - **Reproducing Issues:** Always check `artifacts_data/artifacts.json` or local `test-reports/` if debugging reporting issues.
