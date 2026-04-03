@@ -4,8 +4,11 @@
 name: 🎭 Run Playwright Tests
 
 on:
-  # push:
-  #   branches: '*'
+  schedule:
+    - cron: '0 9 * * *' 
+
+  push:
+    branches: '*'
   workflow_dispatch:
     inputs:
       report_type:
@@ -72,14 +75,24 @@ jobs:
           REPORT_DIR=$(TZ="America/New_York" date +'%Y-%m-%d_%H-%M-%S')_${{ github.run_id }}
           echo "name=$REPORT_DIR" >> $GITHUB_OUTPUT
 
-      - name: 📤 Package & Upload Report
+      - name: 📤 Upload Playwright Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: report-folder
-          # Directly target the report directory structure
+          name: playwright
           path: |
-            test-reports/${{ env.REPORT_TYPE }}
+            test-reports/playwright
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: 📤 Upload Monocart Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monocart
+          path: |
+            test-reports/monocart
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: 🔗 Add Dashboard URL
